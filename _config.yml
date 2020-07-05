@@ -11,7 +11,7 @@
 # https://mmistakes.github.io/minimal-mistakes/docs/quick-start-guide/#installing-the-theme
 
 # theme                  : "minimal-mistakes-jekyll"
-remote_theme             : "mmistakes/minimal-mistakes@4.19.3"
+# remote_theme             : "mmistakes/minimal-mistakes"
 minimal_mistakes_skin    : "dark" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
 
 # Site Settings
@@ -93,11 +93,11 @@ analytics:
 
 # Site Author
 author:
-  name             : #"gaelan gu"
+  name             : # "gaelan gu"
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
   bio              : "data analyst"
   location         : "singapore"
-  email            :
+  email            : # email
   links:
     - label: "email"
       icon: "fas fa-fw fa-envelope-square"
@@ -270,7 +270,7 @@ compress_html:
 defaults:
   # _pages
   - scope:
-      path: ""
+      path: "/"
       type: pages
     values:
       layout: single
