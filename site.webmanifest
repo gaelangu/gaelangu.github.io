@@ -1,0 +1,15 @@
+{
+    "name": "Gaelan Gu",
+    "short_name": "Gaelan",
+    "icons": [
+        {
+            "src": "/android-chrome-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#26304B",
+    "background_color": "#26304B",
+    "display": "standalone",
+    "start_url": "/"
+}
