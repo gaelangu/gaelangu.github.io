@@ -224,6 +224,43 @@
 
     // Init
     applyTheme(getTheme());
+
+    // ── Pixel flicker ──
+    // Split "COMING SOON" into per-character spans, then randomly
+    // dim individual chars to simulate dying dot-matrix pixels.
+    (function() {
+      var el = document.querySelector('.coming-soon');
+      var text = el.textContent;
+      el.textContent = '';
+      // Build spans — preserve space as non-breaking so layout holds
+      var spans = [];
+      for (var i = 0; i < text.length; i++) {
+        var s = document.createElement('span');
+        s.textContent = text[i] === ' ' ? ' ' : text[i];
+        s.style.display = 'inline-block';
+        el.appendChild(s);
+        if (text[i] !== ' ') spans.push(s);
+      }
+
+      function scheduleFlicker() {
+        var span = spans[Math.floor(Math.random() * spans.length)];
+        var flickers = 1 + Math.floor(Math.random() * 3); // 1–3 rapid flickers
+        var delay = 0;
+        for (var f = 0; f < flickers; f++) {
+          (function(d) {
+            setTimeout(function() {
+              span.style.opacity = (0.08 + Math.random() * 0.25).toFixed(2);
+              setTimeout(function() { span.style.opacity = '1'; }, 35 + Math.random() * 55);
+            }, d);
+          })(delay);
+          delay += 80 + Math.random() * 80;
+        }
+        // Next flicker event: sparse, 200ms–1.8s gap
+        setTimeout(scheduleFlicker, 200 + Math.random() * 1600);
+      }
+
+      scheduleFlicker();
+    })();
   </script>
 
 </body>
