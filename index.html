@@ -1,740 +1,230 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-    <script>
-      (function() {
-        var t = localStorage.getItem('theme-pref') === 'light' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', t);
-        document.documentElement.setAttribute('data-theme-pref', t);
-      })();
-    </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gaelan Gu</title>
+  <!-- No-flash theme init -->
+  <script>
+    (function() {
+      var t = localStorage.getItem('theme') === 'light' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
 
-    <meta name="theme-color" content="#26304B">
-    <meta name="theme-color" content="#5B80AC" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#26304B" media="(prefers-color-scheme: dark)">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gaelan Gu</title>
+  <meta name="theme-color" content="#1F1F1E" id="meta-theme-color">
 
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300..700,0..1,0&display=block" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
-    <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@100..900&display=swap" rel="stylesheet">
 
-        /* ── M3 Color Tokens — Navy Blue Seed ── */
-        :root {
-            --md-bg:           #111318;
-            --md-surface-c:    #1D2024;
-            --md-surface-ch:   #282A2F;
-            --md-on-surface:   #E3E2E9;
-            --md-on-surface-v: #C5C6D0;
-            --md-primary:      #ADC6FF;
-            --md-on-primary:   #002E6B;
-            --md-primary-c:    #00439A;
-            --md-on-primary-c: #D8E2FF;
-            --md-secondary-c:  #3F4759;
-            --md-on-sec-c:     #DBE2F9;
-            --md-outline:      #8F9099;
-            --md-outline-v:    #44464F;
-        }
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        [data-theme="light"] {
-            --md-bg:           #F9F9FF;
-            --md-surface-c:    #EDEEF4;
-            --md-surface-ch:   #E7E8EE;
-            --md-on-surface:   #1A1B21;
-            --md-on-surface-v: #44464F;
-            --md-primary:      #2B5EA7;
-            --md-on-primary:   #FFFFFF;
-            --md-primary-c:    #D8E2FF;
-            --md-on-primary-c: #001A45;
-            --md-secondary-c:  #DBE2F9;
-            --md-on-sec-c:     #141B2C;
-            --md-outline:      #757780;
-            --md-outline-v:    #C5C6D0;
-        }
+    :root {
+      --bg:         #1F1F1E;
+      --text:       #EEEEE8;
+      --btn-bg:     #3C3C3A;
+      --btn-shadow: #111110;
+      --btn-hi:     #5A5A58;
+      --btn-lo:     #2A2A28;
+    }
 
-        /* ── M3 Motion ── */
-        :root {
-            --ease-standard:   cubic-bezier(0.2, 0, 0, 1);
-            --ease-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1.0);
-            --ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
+    [data-theme="light"] {
+      --bg:         #F2EFE4;
+      --text:       #1A1A18;
+      --btn-bg:     #D6CEB4;
+      --btn-shadow: #8A8470;
+      --btn-hi:     #F2EEDD;
+      --btn-lo:     #B8B09A;
+    }
 
-        html { scroll-behavior: smooth; }
+    html, body { height: 100%; }
 
-        body {
-            font-family: 'Roboto Flex', 'Roboto', sans-serif;
-            background-color: var(--md-bg);
-            color: var(--md-on-surface);
-            min-height: 100vh;
-            line-height: 1.5;
-            transition: background-color 0.3s var(--ease-standard), color 0.3s var(--ease-standard);
-        }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      transition: background-color 0.2s, color 0.2s;
+    }
 
-        /* ── Material Symbols ── */
-        .material-symbols-outlined {
-            font-family: 'Material Symbols Outlined';
-            font-weight: normal;
-            font-style: normal;
-            font-size: 24px;
-            line-height: 1;
-            letter-spacing: normal;
-            text-transform: none;
-            display: inline-block;
-            white-space: nowrap;
-            direction: ltr;
-            -webkit-font-smoothing: antialiased;
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            user-select: none;
-            flex-shrink: 0;
-        }
+    /* ── Coming Soon ── */
+    .coming-soon {
+      font-family: 'Doto', monospace;
+      font-weight: 700;
+      font-size: clamp(0.88rem, 3.2vw, 1.92rem);
+      letter-spacing: 0.55em;
+      text-align: center;
+      user-select: none;
+      padding: 0 32px;
+      line-height: 1.5;
+    }
 
-        /* ── Theme Toggle — single tonal icon button (m3.material.io) ── */
-        #theme-toggle {
-            position: fixed;
-            top: 16px;
-            right: 16px;
-            z-index: 200;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: none;
-            background: var(--md-secondary-c);
-            color: var(--md-on-sec-c);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden; /* clips icon during slide animation */
-            transition: background 0.3s var(--ease-standard);
-        }
+    /* ── Theme toggle ── */
+    #theme-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      width: 33px;
+      height: 33px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      background: var(--btn-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* Hard pixel shadow — no blur */
+      box-shadow:
+        3px 3px 0 0 var(--btn-shadow),
+        inset 1px 1px 0 0 var(--btn-hi),
+        inset -1px -1px 0 0 var(--btn-lo);
+      transition: background-color 0.2s, box-shadow 0.2s;
+      /* No transform transition — instant snap = pixel press feel */
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
 
-        /* State layer */
-        #theme-toggle::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            background: currentColor;
-            opacity: 0;
-            transition: opacity 150ms;
-            pointer-events: none;
-        }
-        #theme-toggle:hover::after  { opacity: 0.08; }
-        #theme-toggle:active::after { opacity: 0.14; }
+    #theme-btn.pressed {
+      transform: translate(2px, 2px);
+      box-shadow:
+        1px 1px 0 0 var(--btn-shadow),
+        inset 1px 1px 0 0 var(--btn-lo),
+        inset -1px -1px 0 0 var(--btn-hi);
+    }
 
-        /* Icon fill on hover */
-        #theme-toggle:hover .material-symbols-outlined {
-            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        #theme-toggle .material-symbols-outlined {
-            transition: font-variation-settings 200ms var(--ease-standard);
-        }
-
-        /* Sun rises (bottom↑), moon descends (top↓) — pure translate + fade */
-        @keyframes exit-down {
-            from { transform: translateY(0);    opacity: 1; }
-            to   { transform: translateY(130%); opacity: 0; }
-        }
-        @keyframes enter-from-bottom {
-            from { transform: translateY(130%); opacity: 0; }
-            to   { transform: translateY(0);    opacity: 1; }
-        }
-        @keyframes exit-up {
-            from { transform: translateY(0);     opacity: 1; }
-            to   { transform: translateY(-130%); opacity: 0; }
-        }
-        @keyframes enter-from-top {
-            from { transform: translateY(-130%); opacity: 0; }
-            to   { transform: translateY(0);     opacity: 1; }
-        }
-
-        /* ── M3 Navigation Bar ── */
-        nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            background: var(--md-surface-c);
-            display: flex;
-            align-items: stretch;
-            justify-content: center;
-            min-height: 80px;
-            padding-bottom: env(safe-area-inset-bottom);
-            transition: background 0.3s var(--ease-standard);
-        }
-
-        .nav-item {
-            flex: 1;
-            max-width: 240px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 4px;
-            padding: 12px 0 16px;
-            text-decoration: none;
-            color: var(--md-on-surface-v);
-            position: relative;
-            transition: color 200ms var(--ease-standard);
-        }
-
-        .nav-item.active { color: var(--md-on-surface); }
-
-        /* State layer */
-        .nav-item::before {
-            content: '';
-            position: absolute;
-            inset: 8px 12px;
-            border-radius: 9999px;
-            background: var(--md-on-surface);
-            opacity: 0;
-            transition: opacity 150ms;
-            pointer-events: none;
-        }
-        .nav-item:hover::before { opacity: 0.06; }
-
-        /* Active indicator pill */
-        .nav-indicator-wrap {
-            position: relative;
-            width: 64px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .nav-indicator {
-            position: absolute;
-            inset: 0;
-            border-radius: 9999px;
-            background: var(--md-secondary-c);
-            opacity: 0;
-            transform: scaleX(0.4) scaleY(0.6);
-            transition: opacity 200ms var(--ease-standard),
-                        transform 200ms var(--ease-emphasized),
-                        background 0.3s;
-        }
-
-        .nav-item.active .nav-indicator {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .nav-icon {
-            position: relative;
-            z-index: 1;
-            font-size: 24px;
-            transition: font-variation-settings 200ms var(--ease-standard),
-                        color 200ms var(--ease-standard);
-        }
-
-        .nav-item.active .nav-icon {
-            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            color: var(--md-on-sec-c);
-        }
-
-        .nav-label {
-            font-size: 12px;
-            font-weight: 500;
-            letter-spacing: 0.031em;
-            line-height: 16px;
-        }
-
-        /* ── Sections ── */
-        section {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 80px 20px 100px;
-        }
-
-        @media (max-width: 640px) {
-            section { padding: 72px 16px 100px; }
-        }
-
-        /* ── Cards ── */
-        .card {
-            background: var(--md-surface-ch);
-            border-radius: 28px;
-            padding: 48px 52px;
-            max-width: 800px;
-            width: 100%;
-            transition: background 0.3s var(--ease-standard);
-            animation: md-spring-in 420ms var(--ease-emphasized) both paused;
-        }
-
-        .card.animate { animation-play-state: running; }
-
-        @keyframes md-spring-in {
-            0%   { opacity: 0; transform: translateY(18px) scale(0.96); }
-            65%  { opacity: 1; transform: translateY(-3px) scale(1.01); }
-            100% { opacity: 1; transform: none; }
-        }
-
-        .card-hero {
-            background: var(--md-primary-c);
-            color: var(--md-on-primary-c);
-        }
-
-        @media (max-width: 640px) {
-            .card { padding: 36px 24px; border-radius: 20px; }
-        }
-
-        /* ── Me Section ── */
-        .avatar {
-            width: 88px;
-            height: 88px;
-            border-radius: 50%;
-            background: var(--md-primary);
-            color: var(--md-on-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 24px;
-            transition: background 0.3s, color 0.3s;
-        }
-
-        .avatar .material-symbols-outlined {
-            font-size: 44px;
-            font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 48;
-        }
-
-        .hero-name {
-            font-size: clamp(2rem, 6vw, 2.8125rem);
-            line-height: 1.15;
-            font-weight: 400;
-            letter-spacing: -0.01em;
-            margin-bottom: 8px;
-        }
-
-        .hero-role {
-            font-size: 1.375rem;
-            line-height: 1.75rem;
-            font-weight: 400;
-            opacity: 0.8;
-            margin-bottom: 20px;
-        }
-
-        .hero-bio {
-            font-size: 1rem;
-            line-height: 1.65rem;
-            font-weight: 400;
-            letter-spacing: 0.02em;
-            opacity: 0.75;
-            max-width: 560px;
-        }
-
-        .action-row {
-            display: flex;
-            gap: 8px;
-            margin-top: 32px;
-            flex-wrap: wrap;
-        }
-
-        /* ── M3 Buttons ── */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            height: 40px;
-            padding: 0 24px;
-            border-radius: 9999px;
-            font-family: 'Roboto Flex', sans-serif;
-            font-size: 0.875rem;
-            font-weight: 500;
-            letter-spacing: 0.007em;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-
-        .btn .material-symbols-outlined { font-size: 18px; font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20; }
-        .btn .btn-icon-svg { width: 1em; height: 1em; flex-shrink: 0; }
-        .btn-dl-icon { display: inline-flex; align-items: center; }
-
-        /* State layer */
-        .btn::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: currentColor;
-            opacity: 0;
-            transition: opacity 150ms;
-            pointer-events: none;
-        }
-        .btn:hover::after  { opacity: 0.08; }
-        .btn:active::after { opacity: 0.14; }
-
-        .btn { transition: transform 200ms var(--ease-spring); }
-        .btn:hover { transform: scale(1.04); }
-
-        .btn-filled {
-            background: var(--md-primary);
-            color: var(--md-on-primary);
-        }
-
-        .btn-tonal {
-            background: var(--md-secondary-c);
-            color: var(--md-on-sec-c);
-        }
-
-        .btn-outlined {
-            background: transparent;
-            color: var(--md-primary);
-            border: 1px solid var(--md-outline);
-        }
-
-        /* Outlined btn on hero (primaryContainer bg) */
-        .card-hero .btn-outlined {
-            border-color: rgba(var(--_on-primary-c-rgb, 216, 226, 255), 0.5);
-            color: var(--md-on-primary-c);
-            border-color: var(--md-on-primary-c);
-            opacity: 0.82;
-        }
-
-        /* ── CV Section ── */
-        .cv-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 36px;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-
-        .cv-top h2 {
-            font-size: 1.5rem;
-            line-height: 2rem;
-            font-weight: 400;
-        }
-
-        /* Rendered markdown */
-        .cv-content h1 {
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--md-primary);
-            margin: 36px 0 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--md-outline-v);
-            transition: color 0.3s, border-color 0.3s;
-        }
-        .cv-content h1:first-child { margin-top: 0; }
-        .cv-content h2 { font-size: 1rem; font-weight: 500; letter-spacing: 0.009em; color: var(--md-on-surface); margin: 20px 0 4px; }
-        .cv-content h3 { font-size: 0.875rem; font-weight: 400; color: var(--md-on-surface-v); margin: 2px 0 10px; letter-spacing: 0.016em; }
-        .cv-content p  { font-size: 0.875rem; color: var(--md-on-surface-v); line-height: 1.65; margin-bottom: 8px; letter-spacing: 0.016em; }
-        .cv-content ul { padding-left: 20px; margin: 6px 0 12px; }
-        .cv-content li { font-size: 0.875rem; color: var(--md-on-surface-v); line-height: 1.65; margin-bottom: 4px; letter-spacing: 0.016em; }
-        .cv-content strong { color: var(--md-on-surface); font-weight: 500; }
-        .cv-content em { color: var(--md-on-surface-v); }
-        .cv-content hr { border: none; border-top: 1px solid var(--md-outline-v); margin: 24px 0; }
-
-        .cv-loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 52px 0;
-            color: var(--md-on-surface-v);
-            font-size: 0.875rem;
-        }
-        .cv-loading .material-symbols-outlined { animation: spin 1.1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* ── Contact Section ── */
-        #contact .section-title { font-size: 1.5rem; line-height: 2rem; font-weight: 400; margin-bottom: 8px; }
-        #contact .section-sub { font-size: 0.875rem; color: var(--md-on-surface-v); margin-bottom: 28px; letter-spacing: 0.016em; }
-
-        .contact-list { display: flex; flex-direction: column; gap: 8px; }
-
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 16px 20px;
-            border-radius: 28px;
-            background: var(--md-surface-c);
-            text-decoration: none;
-            color: var(--md-on-surface);
-            position: relative;
-            overflow: hidden;
-            transition: background 0.3s var(--ease-standard),
-                        transform 200ms var(--ease-spring);
-        }
-
-        .contact-item::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: var(--md-on-surface);
-            opacity: 0;
-            transition: opacity 150ms;
-            pointer-events: none;
-        }
-        .contact-item:hover::after { opacity: 0.06; }
-        .contact-item:hover { transform: translateX(6px); }
-
-        .contact-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--md-primary-c);
-            color: var(--md-on-primary-c);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: background 0.3s, color 0.3s;
-        }
-
-        .contact-icon .material-symbols-outlined { font-size: 20px; font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20; }
-        .contact-icon svg { width: 18px; height: 18px; }
-
-        .contact-lbl { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--md-on-surface-v); margin-bottom: 2px; }
-        .contact-val { font-size: 0.9rem; font-weight: 500; }
-
-        /* ── Footer ── */
-        footer {
-            text-align: center;
-            padding: 4px 0 100px;
-            font-size: 0.75rem;
-            color: var(--md-on-surface-v);
-            opacity: 0.45;
-            letter-spacing: 0.03em;
-        }
-    </style>
+    /* Icon visibility — CSS-driven, no JS swap needed */
+    [data-theme="dark"]  .icon-sun  { display: none; }
+    [data-theme="light"] .icon-moon { display: none; }
+  </style>
 </head>
 <body>
 
-    <!-- Theme Toggle: single tonal icon button -->
-    <button id="theme-toggle" aria-label="Switch to light mode">
-        <span class="material-symbols-outlined" id="theme-icon">light_mode</span>
-    </button>
+  <button id="theme-btn" aria-label="Toggle theme">
 
-    <!-- ── Me ── -->
-    <section id="me">
-        <div class="card card-hero">
-            <div class="avatar">
-                <span class="material-symbols-outlined">person</span>
-            </div>
-            <h1 class="hero-name">Gaelan Gu</h1>
-            <p class="hero-role">Lead Data Analyst</p>
-            <p class="hero-bio">
-                Fluent in SQL, Python, and Prompt Engineering ☕️
-            </p>
-            <div class="action-row">
-                <a href="https://linkedin.com/in/gaelangu" class="btn btn-filled" target="_blank" rel="noopener">
-                    <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                    LinkedIn
-                </a>
-                <a href="https://github.com/gaelangu" class="btn btn-tonal" target="_blank" rel="noopener">
-                    <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-                    GitHub
-                </a>
-                <a href="assets/cv.pdf" class="btn btn-outlined btn-download" target="_blank" rel="noopener">
-                    <span class="btn-dl-icon"><span class="material-symbols-outlined">download</span></span>
-                    Download CV
-                </a>
-            </div>
-        </div>
-    </section>
+    <!-- Moon: shown in dark mode -->
+    <span class="icon-moon">
+      <svg width="20" height="20" viewBox="0 0 20 20"
+           xmlns="http://www.w3.org/2000/svg"
+           style="display:block;transform:rotate(-45deg)"
+           aria-hidden="true">
+        <defs>
+          <mask id="moon-mask">
+            <rect width="20" height="20" fill="white"/>
+            <circle cx="14" cy="10" r="7" fill="black"/>
+          </mask>
+        </defs>
+        <circle cx="10" cy="10" r="8" fill="#C8BFEE" mask="url(#moon-mask)"/>
+      </svg>
+    </span>
 
-    <!-- ── CV ── -->
-    <section id="cv">
-        <div class="card">
-            <div class="cv-top">
-                <h2>Curriculum Vitae</h2>
-                <a href="assets/cv.pdf" class="btn btn-filled btn-download" target="_blank" rel="noopener">
-                    <span class="btn-dl-icon"><span class="material-symbols-outlined">download</span></span>
-                    Download PDF
-                </a>
-            </div>
-            <div class="cv-content" id="cv-content">
-                <div class="cv-loading">
-                    <span class="material-symbols-outlined">autorenew</span>
-                    Loading…
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Sun: shown in light mode -->
+    <span class="icon-sun">
+      <svg width="20" height="20" viewBox="0 0 24 24"
+           xmlns="http://www.w3.org/2000/svg"
+           style="display:block"
+           fill="#9A6200"
+           aria-hidden="true">
+        <circle cx="12" cy="2.5" r="1.5" transform="rotate(0   12 12)"/>
+        <circle cx="12" cy="2.5" r="1.5" transform="rotate(36  12 12)"/>
+        <circle cx="12" cy="2.5" r="1.5" transform="rotate(72  12 12)"/>
+        <circle cx="12" cy="2.5" r="1.5" transform="rotate(108 12 12)"/>
+        <circle cx="12" cy="2.5" r="1.5" transform="rotate(144 12 12)"/>
+        <circle cx="12" cy="2.5" r="1.5" transform="rotate(180 12 12)"/>
+        <circle cx="12" cy="2.5" r="1.5" transform="rotate(216 12 12)"/>
+        <circle cx="12" cy="2.5" r="1.5" transform="rotate(252 12 12)"/>
+        <circle cx="12" cy="2.5" r="1.5" transform="rotate(288 12 12)"/>
+        <circle cx="12" cy="2.5" r="1.5" transform="rotate(324 12 12)"/>
+        <circle cx="12" cy="12" r="5.5"/>
+      </svg>
+    </span>
 
-    <!-- ── Contact ── -->
-    <section id="contact">
-        <div class="card">
-            <h2 class="section-title">HMU</h2>
-            <p class="section-sub">Open to opportunities and conversations.</p>
-            <div class="contact-list">
-                <a href="mailto:gaelangu@gmail.com" class="contact-item" id="email-contact">
-                    <div class="contact-icon" id="email-icon-wrap">
-                        <svg id="email-icon" xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h404q-4 20-4 40t4 40H160l320 200 146-91q14 13 30.5 22.5T691-572L480-440 160-640v400h640v-324q23-5 43-14t37-22v360q0 33-23.5 56.5T800-160H160Zm0-560v480-480Zm515 45q-35-35-35-85t35-85q35-35 85-35t85 35q35 35 35 85t-35 85q-35 35-85 35t-85-35Z"/></svg>
-                    </div>
-                    <div>
-                        <div class="contact-lbl">Email</div>
-                        <div class="contact-val">gaelangu@gmail.com</div>
-                    </div>
-                </a>
-                <a href="https://linkedin.com/in/gaelangu" class="contact-item" target="_blank" rel="noopener">
-                    <div class="contact-icon">
-                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                    </div>
-                    <div>
-                        <div class="contact-lbl">LinkedIn</div>
-                        <div class="contact-val">linkedin.com/in/gaelangu</div>
-                    </div>
-                </a>
-                <a href="https://github.com/gaelangu" class="contact-item" target="_blank" rel="noopener">
-                    <div class="contact-icon">
-                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-                    </div>
-                    <div>
-                        <div class="contact-lbl">GitHub</div>
-                        <div class="contact-val">github.com/gaelangu</div>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </section>
+  </button>
 
-    <footer>© 2026 Gaelan Gu</footer>
+  <main>
+    <p class="coming-soon">COMING SOON</p>
+  </main>
 
-    <!-- ── M3 Navigation Bar ── -->
-    <nav id="navbar">
-        <a href="#me" class="nav-item active" data-section="me">
-            <div class="nav-indicator-wrap">
-                <div class="nav-indicator"></div>
-                <span class="material-symbols-outlined nav-icon">person</span>
-            </div>
-            <span class="nav-label">Me</span>
-        </a>
-        <a href="#cv" class="nav-item" data-section="cv">
-            <div class="nav-indicator-wrap">
-                <div class="nav-indicator"></div>
-                <span class="material-symbols-outlined nav-icon">description</span>
-            </div>
-            <span class="nav-label">CV</span>
-        </a>
-        <a href="#contact" class="nav-item" data-section="contact">
-            <div class="nav-indicator-wrap">
-                <div class="nav-indicator"></div>
-                <span class="material-symbols-outlined nav-icon">call</span>
-            </div>
-            <span class="nav-label">Contact</span>
-        </a>
-    </nav>
+  <script>
+    var btn = document.getElementById('theme-btn');
+    var metaTheme = document.getElementById('meta-theme-color');
+    var THEME_COLORS = { dark: '#1F1F1E', light: '#F2EFE4' };
 
-    <script>
-      // ── Theme ──
-      var themeAnimating = false;
+    // ── Typewriter tap (Web Audio, no files) ──
+    function playTap() {
+      try {
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        var sr  = ctx.sampleRate;
+        // Two layers: body click + sharp attack transient
+        var dur = 0.07;
+        var buf = ctx.createBuffer(1, Math.floor(sr * dur), sr);
+        var d   = buf.getChannelData(0);
+        for (var i = 0; i < d.length; i++) {
+          var t = i / sr;
+          // White noise decaying fast
+          d[i] = (Math.random() * 2 - 1) * Math.exp(-t / 0.008);
+        }
+        var src = ctx.createBufferSource();
+        src.buffer = buf;
 
-      function syncToggleUI(t) {
-        var next = t === 'dark' ? 'light' : 'dark';
-        document.getElementById('theme-icon').textContent = next + '_mode';
-        document.getElementById('theme-toggle').setAttribute('aria-label', 'Switch to ' + next + ' mode');
-      }
+        // Bandpass around ~1 kHz → typewriter body thump
+        var bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.value = 900;
+        bp.Q.value = 0.8;
 
-      function commitTheme(t) {
-        document.documentElement.setAttribute('data-theme', t);
-        document.documentElement.setAttribute('data-theme-pref', t);
-        localStorage.setItem('theme-pref', t);
-      }
+        // Slight high shelf for click brightness
+        var hs = ctx.createBiquadFilter();
+        hs.type = 'highshelf';
+        hs.frequency.value = 3000;
+        hs.gain.value = 6;
 
-      // On load: set state instantly, no animation
-      (function() {
-        var t = document.documentElement.getAttribute('data-theme-pref') || 'dark';
-        commitTheme(t);
-        syncToggleUI(t);
-      })();
+        var gain = ctx.createGain();
+        gain.gain.value = 0.55;
 
-      document.getElementById('theme-toggle').addEventListener('click', function() {
-        if (themeAnimating) return;
-        themeAnimating = true;
+        src.connect(bp);
+        bp.connect(hs);
+        hs.connect(gain);
+        gain.connect(ctx.destination);
+        src.start();
+        src.onended = function() { ctx.close(); };
+      } catch(e) {}
+    }
 
-        var cur = document.documentElement.getAttribute('data-theme-pref') || 'dark';
-        var next = cur === 'dark' ? 'light' : 'dark';
-        var iconEl = document.getElementById('theme-icon');
+    function getTheme() {
+      return document.documentElement.getAttribute('data-theme') || 'dark';
+    }
 
-        // dark→light: sun exits down, moon enters from top
-        // light→dark: moon exits up, sun enters from bottom
-        var exitAnim   = cur === 'dark' ? 'exit-down'         : 'exit-up';
-        var enterAnim  = cur === 'dark' ? 'enter-from-top'    : 'enter-from-bottom';
-        var easeAccel  = 'cubic-bezier(0.4,0,1,1)';
-        var easeDecel  = 'cubic-bezier(0.0,0,0.2,1)';
+    function applyTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('theme', t);
+      if (metaTheme) metaTheme.setAttribute('content', THEME_COLORS[t]);
+    }
 
-        iconEl.style.animation = exitAnim + ' 240ms ' + easeAccel + ' forwards';
+    btn.addEventListener('click', function() {
+      playTap();
+      applyTheme(getTheme() === 'dark' ? 'light' : 'dark');
+    });
 
-        setTimeout(function() {
-          commitTheme(next);
-          syncToggleUI(next);
-          iconEl.style.animation = enterAnim + ' 300ms ' + easeDecel + ' forwards';
-          setTimeout(function() {
-            iconEl.style.animation = '';
-            themeAnimating = false;
-          }, 300);
-        }, 200);
-      });
+    // Press — mouse
+    btn.addEventListener('mousedown', function() { btn.classList.add('pressed'); });
+    window.addEventListener('mouseup',  function() { btn.classList.remove('pressed'); });
 
-      // ── Load CV markdown ──
-      fetch('cv.md')
-        .then(function(r) { if (!r.ok) throw new Error(); return r.text(); })
-        .then(function(md) { document.getElementById('cv-content').innerHTML = marked.parse(md); })
-        .catch(function() {
-          document.getElementById('cv-content').innerHTML =
-            '<p style="text-align:center;padding:52px 0;opacity:0.45">CV unavailable. Open via HTTP server, not <code>file://</code>.</p>';
-        });
+    // Press — touch
+    btn.addEventListener('touchstart', function() { btn.classList.add('pressed'); }, { passive: true });
+    window.addEventListener('touchend', function() { btn.classList.remove('pressed'); });
 
-      // ── Download → checkmark on click ──
-      var DL_DONE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="M382-320 155-547l57-57 170 170 366-366 57 57-423 423ZM200-160v-80h560v80H200Z"/></svg>';
-      document.querySelectorAll('.btn-download').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          var wrap = btn.querySelector('.btn-dl-icon');
-          if (wrap) wrap.innerHTML = DL_DONE_SVG;
-        });
-      });
-
-      // ── Email → sent icon on click ──
-      var EMAIL_SENT_SVG = '<svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="M638-80 468-250l56-56 114 114 226-226 56 56L638-80ZM480-520l320-200H160l320 200Zm0 80L160-640v400h206l80 80H160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v174l-80 80v-174L480-440Zm0 0Zm0-80Zm0 80Z"/></svg>';
-      var emailContact = document.getElementById('email-contact');
-      if (emailContact) {
-        emailContact.addEventListener('click', function() {
-          var icon = document.getElementById('email-icon');
-          if (icon) icon.outerHTML = EMAIL_SENT_SVG.replace('id="email-icon" ', '');
-        });
-      }
-
-      // ── Active nav + spring-in cards ──
-      var sections = document.querySelectorAll('section[id]');
-      var navItems = document.querySelectorAll('.nav-item');
-
-      var observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(e) {
-          if (e.isIntersecting) {
-            navItems.forEach(function(b) { b.classList.remove('active'); });
-            var btn = document.querySelector('.nav-item[data-section="' + e.target.id + '"]');
-            if (btn) btn.classList.add('active');
-            var card = e.target.querySelector('.card');
-            if (card) card.classList.add('animate');
-          }
-        });
-      }, { threshold: 0.25 });
-
-      sections.forEach(function(s) { observer.observe(s); });
-    </script>
+    // Init
+    applyTheme(getTheme());
+  </script>
 
 </body>
 </html>
