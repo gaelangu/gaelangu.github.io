@@ -59,8 +59,8 @@
     /* ── Coming Soon ── */
     .coming-soon {
       font-family: 'Doto', monospace;
-      font-weight: 700;
-      font-size: clamp(0.88rem, 3.2vw, 1.92rem);
+      font-weight: 900;
+      font-size: clamp(1.14rem, 4.16vw, 2.5rem);
       letter-spacing: 0.55em;
       text-align: center;
       user-select: none;
@@ -225,41 +225,122 @@
     // Init
     applyTheme(getTheme());
 
-    // ── Pixel flicker ──
-    // Split "COMING SOON" into per-character spans, then randomly
-    // dim individual chars to simulate dying dot-matrix pixels.
+    // ── Dot-level pixel flicker ──
+    // Renders text to offscreen canvas at 6x font size (so Doto dots
+    // have clear gaps), detects each dot centre via BFS clustering,
+    // then overlays a fixed transparent canvas and randomly paints
+    // bg-coloured circles to kill individual dots.
     (function() {
-      var el = document.querySelector('.coming-soon');
-      var text = el.textContent;
-      el.textContent = '';
-      // Build spans — preserve space as non-breaking so layout holds
-      var spans = [];
-      for (var i = 0; i < text.length; i++) {
-        var s = document.createElement('span');
-        s.textContent = text[i] === ' ' ? ' ' : text[i];
-        s.style.display = 'inline-block';
-        el.appendChild(s);
-        if (text[i] !== ' ') spans.push(s);
-      }
+      var el      = document.querySelector('.coming-soon');
+      var overlay = null;
+      var dots    = [];
+      var ftimer  = null;
+      var rtimer  = null;
 
-      function scheduleFlicker() {
-        var span = spans[Math.floor(Math.random() * spans.length)];
-        var flickers = 1 + Math.floor(Math.random() * 3); // 1–3 rapid flickers
-        var delay = 0;
-        for (var f = 0; f < flickers; f++) {
-          (function(d) {
-            setTimeout(function() {
-              span.style.opacity = (0.08 + Math.random() * 0.25).toFixed(2);
-              setTimeout(function() { span.style.opacity = '1'; }, 35 + Math.random() * 55);
-            }, d);
-          })(delay);
-          delay += 80 + Math.random() * 80;
+      function buildOverlay() {
+        if (overlay) { overlay.remove(); overlay = null; }
+
+        var rect = el.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
+        var W  = Math.ceil(rect.width);
+        var H  = Math.ceil(rect.height);
+        var cs = window.getComputedStyle(el);
+        var fsPx = parseFloat(cs.fontSize);
+
+        // 6x scale gives clear inter-dot gaps in Doto font
+        var SC   = 6;
+        var offW = Math.ceil(W * SC);
+        var offH = Math.ceil(H * SC);
+        var off  = document.createElement('canvas');
+        off.width = offW; off.height = offH;
+        var octx = off.getContext('2d');
+        octx.font = '900 ' + (fsPx * SC) + 'px Doto';
+        if ('letterSpacing' in octx) octx.letterSpacing = (0.55 * fsPx * SC) + 'px';
+        octx.textAlign = 'center'; octx.textBaseline = 'middle';
+        octx.fillStyle = 'white';
+        octx.fillText('COMING SOON', offW / 2, offH / 2);
+
+        // BFS clustering: alpha >= 230, r=3 px — resolves individual dots
+        var data    = octx.getImageData(0, 0, offW, offH).data;
+        var visited = new Uint8Array(offW * offH);
+        var r = 3, r2 = 9;
+        dots = [];
+
+        for (var py = 0; py < offH; py++) {
+          for (var px = 0; px < offW; px++) {
+            var pi = py * offW + px;
+            if (visited[pi] || data[pi * 4 + 3] < 230) continue;
+            var q  = [pi]; visited[pi] = 1;
+            var sx = 0, sy = 0, n = 0;
+            while (q.length) {
+              var ci = q.pop();
+              var cx = ci % offW;
+              var cy = (ci - cx) / offW;
+              sx += cx; sy += cy; n++;
+              for (var dy = -r; dy <= r; dy++) {
+                for (var dx = -r; dx <= r; dx++) {
+                  if (dx*dx + dy*dy > r2) continue;
+                  var nx = cx+dx, ny = cy+dy;
+                  if (nx<0||nx>=offW||ny<0||ny>=offH) continue;
+                  var ni = ny*offW + nx;
+                  if (visited[ni] || data[ni*4+3] < 230) continue;
+                  visited[ni] = 1; q.push(ni);
+                }
+              }
+            }
+            if (n > 4) dots.push({
+              x: (sx / n) / SC,
+              y: (sy / n) / SC,
+              r: Math.sqrt(n / Math.PI) / SC * 1.2
+            });
+          }
         }
-        // Next flicker event: sparse, 200ms–1.8s gap
-        setTimeout(scheduleFlicker, 200 + Math.random() * 1600);
+
+        // Transparent overlay canvas, fixed over the text element
+        overlay = document.createElement('canvas');
+        overlay.width  = W;
+        overlay.height = H;
+        overlay.style.cssText =
+          'position:fixed;left:' + rect.left + 'px;top:' + rect.top + 'px;' +
+          'width:' + W + 'px;height:' + H + 'px;pointer-events:none;z-index:10;';
+        document.body.appendChild(overlay);
       }
 
-      scheduleFlicker();
+      function flicker() {
+        if (ftimer) clearTimeout(ftimer);
+        if (!overlay || !dots.length) return;
+        var ctx   = overlay.getContext('2d');
+        var picked = [dots[Math.floor(Math.random() * dots.length)]];
+
+        var bg = window.getComputedStyle(document.body).backgroundColor;
+        picked.forEach(function(d) {
+          ctx.beginPath();
+          ctx.arc(d.x, d.y, d.r + 0.5, 0, Math.PI * 2);
+          ctx.fillStyle = bg;
+          ctx.fill();
+        });
+
+        setTimeout(function() {
+          picked.forEach(function(d) {
+            ctx.clearRect(d.x - d.r - 2, d.y - d.r - 2, d.r*2+4, d.r*2+4);
+          });
+          ftimer = setTimeout(flicker, 3000 + Math.random() * 4000);
+        }, 35 + Math.random() * 80);
+      }
+
+      document.fonts.ready.then(function() {
+        buildOverlay();
+        if (dots.length) flicker();
+      });
+
+      window.addEventListener('resize', function() {
+        clearTimeout(rtimer);
+        rtimer = setTimeout(function() {
+          buildOverlay();
+          if (dots.length) flicker();
+        }, 200);
+      });
     })();
   </script>
 
