@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Dungeon — prototype</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #1F1F1E; }
+    #c { display: block; touch-action: none; }
+    #loading {
+      position: fixed; inset: 0; display: flex;
+      align-items: center; justify-content: center;
+      background: #1F1F1E;
+      font-family: 'Courier New', monospace;
+      font-size: 13px; letter-spacing: 3px; color: #555;
+    }
+  </style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="loading">LOADING...</div>
+<script>
+'use strict';
+
+// ── CONFIG ────────────────────────────────────────────────
+const BG_COL  = '#1F1F1E';
+const TS      = 16;
+const TILE_DS = 9;            // tile display scale → 144px/tile
+const DTS     = TS * TILE_DS;
+const MAP_W   = 28;
+const MAP_H   = 18;
+const SPEED   = DTS * 0.055;
+const LAMP_R  = 340;
+const LAMP_FADE = 0.55;
+const INTER_R = DTS * 1.3;
+
+// LPC sprite sheet constants (lpc/character.png: 1536×5760, 64×64 frames, 24 cols × 90 rows)
+// Walk rows (0-indexed): North=8, West=9, South=10, East=11
+// Col 0 = idle stance, cols 1-8 = walk cycle
+const LPC_FRAME      = 64;
+const LPC_SCALE      = 2.0;
+const LPC_WALK_MS    = 110;  // ms per walk frame
+const LPC_WALK_FRAMES= 8;    // 8 walk frames (cols 1-8)
+const LPC_ROW        = [10, 9, 11, 8]; // dir→row: 0=S→10, 1=W→9, 2=E→11, 3=N→8
+const SPR_W_PX       = LPC_FRAME * LPC_SCALE;
+const SPR_H_PX       = LPC_FRAME * LPC_SCALE;
+
+// ── TILE COLOURS ──────────────────────────────────────────
+const TC = {
+  j:'#181614', s:'#27251F', S:'#35332C',
+  T:'#212019', c:'#2E2B22', m:'#1F2318', M:'#272D1E',
+};
+const fixJ = rows => rows.map(r => r.replace(/J/g,'j').padEnd(16,'s'));
+
+const TILE_BASE = fixJ([
+  'jjjjjjjjjjjjjjjj','jSssssssJsssssss','jsssssssJssSssss',
+  'jsssssssJssssssT','jsssTsssJsssssss','jsssssssJssssssS',
+  'jsssssssJsssssss','jsssssssJsssssss','jjjjjjjjjjjjjjjj',
+  'jsssssSsJsssssss','jsssssssJsssssTs','jsssssssJSssssss',
+  'jsssTsssjsssssss','jsssssssJssSssss','jsssssssJsssssss',
+  'jsssssssJssssssS',
+]);
+const TILE_CRACK = fixJ([
+  'jjjjjjjjjjjjjjjj','jSssssssJsssssss','jscsssssjssSssss',
+  'jsscssssjssssssT','jssscsssjsssssss','jsssscssjssssssS',
+  'jssssscsJsssssss','jsssssssJsssssss','jjjjjjjjjjjjjjjj',
+  'jsssssssJsssssss','jsssssssJsssssTs','jsssssssJSssssss',
+  'jsssTsssjsssssss','jsssssssJssSssss','jsssssssJsssssss',
+  'jsssssssJssssssS',
+]);
+const TILE_MOSS = fixJ([
+  'jjjjjjjjjjjjjjjj','jSssssssJsssssss','jsssssssJssSssss',
+  'jsssssssJssssssT','jsssTsssJsssssss','jsssssssJssssssS',
+  'jsssssssJsssssss','jsssssssJsssssss','jjjjjjjjjjjjjjjj',
+  'jsssssSsjmmMssss','jsssssssJsMmMsss','jsssssssJsmmssss',
+  'jsssTsssjsMsssss','jsssssssJsssssss','jsssssssJsssssss',
+  'jsssssssJssssssS',
+]);
+const TILE_WORN = fixJ([
+  'jjjjjjjjjjjjjjjj','jTssssssJsssssTs','jssssssTJsssssss',
+  'jsssssssjsssTsss','jssssssTJsssssss','jsssssssJsssssss',
+  'jssTssssJsssssTs','jsssssssJsssssss','jjjjjjjjjjjjjjjj',
+  'jsssssssJsssssss','jssssTssJssssssT','jsssssssJssTssss',
+  'jsssssssJsssssss','jsssTsssJsssssss','jsssssssJsssssss',
+  'jsssssssJssssssT',
+]);
+const TILES_DATA = [TILE_BASE, TILE_CRACK, TILE_MOSS, TILE_WORN];
+
+// ── MAP (seeded random) ───────────────────────────────────
+function mkRng(seed) {
+  let s = seed;
+  return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
+}
+const rng = mkRng(0xC0FFEE42);
+const MAP = Array.from({ length: MAP_H }, () =>
+  Array.from({ length: MAP_W }, () => {
+    const r = rng();
+    return r < 0.65 ? 0 : r < 0.80 ? 1 : r < 0.92 ? 2 : 3;
+  })
+);
+
+// ── OBJECTS ───────────────────────────────────────────────
+const OBJECTS = [
+  { tx:6,  ty:3,  label:'CHEST',  msg:'A wooden chest.\nIt\'s locked tight.' },
+  { tx:19, ty:5,  label:'DOOR',   msg:'An iron door.\nCold to the touch. Won\'t budge.' },
+  { tx:12, ty:12, label:'PILLAR', msg:'A crumbling stone pillar.\nSomething is carved into it.' },
+  { tx:3,  ty:15, label:'SKULL',  msg:'A skull.\nEmpty eyes stare back at you.' },
+  { tx:23, ty:14, label:'SHRINE', msg:'A small offering shrine.\nThe candle has long burned out.' },
+].map(o => ({ ...o, wx: o.tx * DTS + DTS/2, wy: o.ty * DTS + DTS/2 }));
+
+// ── CANVAS ────────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+let VW, VH;
+function resize() { VW = canvas.width = window.innerWidth; VH = canvas.height = window.innerHeight; }
+window.addEventListener('resize', resize);
+resize();
+
+// ── BAKE TILE SPRITES ─────────────────────────────────────
+function bake(rows, palette, aw, ah, scale) {
+  const off = document.createElement('canvas');
+  off.width = aw * scale; off.height = ah * scale;
+  const oc = off.getContext('2d');
+  for (let y = 0; y < ah; y++) {
+    const row = rows[y] || '';
+    for (let x = 0; x < aw; x++) {
+      const col = palette[row[x]];
+      if (col) { oc.fillStyle = col; oc.fillRect(x*scale, y*scale, scale, scale); }
+    }
+  }
+  return off;
+}
+
+const TILE_SPRS = TILES_DATA.map(td => bake(td, TC, TS, TS, TILE_DS));
+
+// Object glow sprites
+OBJECTS.forEach(o => {
+  const sz = Math.round(DTS * 0.7);
+  const off = document.createElement('canvas');
+  off.width = sz; off.height = sz;
+  const oc = off.getContext('2d');
+  const cx = sz/2, cy = sz/2, r = sz/2 - 2;
+  const grd = oc.createRadialGradient(cx, cy, 2, cx, cy, r);
+  grd.addColorStop(0,   'rgba(210,185,100,0.7)');
+  grd.addColorStop(0.5, 'rgba(190,160,60,0.25)');
+  grd.addColorStop(1,   'rgba(0,0,0,0)');
+  oc.fillStyle = grd; oc.fillRect(0, 0, sz, sz);
+  const ic = 10;
+  oc.fillStyle = '#906808'; oc.fillRect(cx-ic/2, cy-ic/2, ic, ic);
+  oc.fillStyle = '#C49018'; oc.fillRect(cx-ic/2+2, cy-ic/2+2, ic-4, ic-4);
+  oc.fillStyle = '#F0C840'; oc.fillRect(cx-ic/2+4, cy-ic/2+4, ic-8, ic-8);
+  o.spr = off; o.sprSz = sz;
+});
+
+// Darkness offscreen
+const darkOff = document.createElement('canvas');
+const dCtx    = darkOff.getContext('2d');
+function resizeDark() { darkOff.width = VW; darkOff.height = VH; }
+window.addEventListener('resize', resizeDark);
+resizeDark();
+
+// ── STATE ─────────────────────────────────────────────────
+const g = {
+  cx: MAP_W * DTS / 2, cy: MAP_H * DTS / 2,
+  dir: 2,        // 0=S 1=W 2=E 3=N
+  animFrame: 0, animTimer: 0,
+  moving: false,
+  camX: 0, camY: 0,
+  nearObj: null,
+  dialog: null,
+  instrAlpha: 1, instrTimer: 0, hasMoved: false,
+};
+
+// ── INPUT ─────────────────────────────────────────────────
+const keys = {};
+window.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if (['e','E',' ','Enter'].includes(e.key)) {
+    if (g.dialog) {
+      if (g.dialog.done) g.dialog = null;
+      else { g.dialog.idx = g.dialog.text.length; g.dialog.done = true; }
+    } else if (g.nearObj) {
+      g.dialog = { text: g.nearObj.msg, idx: 0, timer: 0, done: false };
+    }
+    e.preventDefault();
+  }
+});
+window.addEventListener('keyup', e => { keys[e.key] = false; });
+
+const JOY = { active: false, baseX: 80, baseY: 0, dx: 0, dy: 0, id: -1 };
+const JR = 48, JKR = 20;
+
+function doAction() {
+  if (g.dialog) {
+    if (g.dialog.done) g.dialog = null;
+    else { g.dialog.idx = g.dialog.text.length; g.dialog.done = true; }
+  } else if (g.nearObj) {
+    g.dialog = { text: g.nearObj.msg, idx: 0, timer: 0, done: false };
+  }
+}
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  for (const t of e.changedTouches) {
+    if (!JOY.active && t.clientX < VW * 0.55) {
+      JOY.active = true; JOY.id = t.identifier;
+      JOY.baseX = t.clientX; JOY.baseY = t.clientY;
+      JOY.dx = 0; JOY.dy = 0;
+    } else { doAction(); }
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  for (const t of e.changedTouches) {
+    if (t.identifier === JOY.id) {
+      const dx = t.clientX - JOY.baseX, dy = t.clientY - JOY.baseY;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      JOY.dx = dist > JR ? dx/dist : dx/JR;
+      JOY.dy = dist > JR ? dy/dist : dy/JR;
+    }
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchend', e => {
+  for (const t of e.changedTouches)
+    if (t.identifier === JOY.id) { JOY.active = false; JOY.dx = 0; JOY.dy = 0; JOY.id = -1; }
+});
+
+// ── UPDATE ────────────────────────────────────────────────
+function update(dt) {
+  if (g.dialog) {
+    g.dialog.timer += dt;
+    while (g.dialog.timer >= 38 && g.dialog.idx < g.dialog.text.length) {
+      g.dialog.timer -= 38; g.dialog.idx++;
+    }
+    if (g.dialog.idx >= g.dialog.text.length) g.dialog.done = true;
+    return;
+  }
+
+  let dx = 0, dy = 0;
+  if (keys['ArrowLeft']  || keys['a']) dx -= 1;
+  if (keys['ArrowRight'] || keys['d']) dx += 1;
+  if (keys['ArrowUp']    || keys['w']) dy -= 1;
+  if (keys['ArrowDown']  || keys['s']) dy += 1;
+  dx += JOY.dx; dy += JOY.dy;
+
+  const mag = Math.sqrt(dx*dx + dy*dy);
+  if (mag > 1) { dx /= mag; dy /= mag; }
+  const moving = mag > 0.05;
+
+  // 4-dir facing: largest input component wins
+  if (moving) {
+    if (Math.abs(dx) >= Math.abs(dy)) g.dir = dx > 0 ? 2 : 1;  // E or W
+    else                               g.dir = dy > 0 ? 0 : 3;  // S or N
+  }
+
+  const spd = SPEED * (dt / 16.67);
+  g.cx = Math.max(SPR_W_PX/2,       Math.min(MAP_W*DTS - SPR_W_PX/2, g.cx + dx*spd));
+  g.cy = Math.max(SPR_H_PX,         Math.min(MAP_H*DTS,               g.cy + dy*spd));
+
+  g.animTimer += dt;
+  if (g.animTimer >= LPC_WALK_MS) {
+    g.animTimer -= LPC_WALK_MS;
+    if (moving) g.animFrame = (g.animFrame + 1) % LPC_WALK_FRAMES;
+    else        g.animFrame = 0;
+  }
+  g.moving = moving;
+  if (moving) g.hasMoved = true;
+
+  g.camX = Math.round(Math.max(0, Math.min(MAP_W*DTS - VW, g.cx - VW/2)));
+  g.camY = Math.round(Math.max(0, Math.min(MAP_H*DTS - VH, g.cy - VH/2)));
+
+  g.nearObj = null;
+  for (const o of OBJECTS)
+    if ((o.wx-g.cx)**2 + (o.wy-g.cy)**2 < INTER_R**2) { g.nearObj = o; break; }
+
+  if (g.hasMoved) {
+    g.instrTimer += dt;
+    if (g.instrTimer > 3000) g.instrAlpha = Math.max(0, 1 - (g.instrTimer - 3000) / 800);
+  }
+}
+
+// ── RENDER ────────────────────────────────────────────────
+let lpcImg;
+
+function drawCharacter(scrX, scrY) {
+  const row = LPC_ROW[g.dir];
+  const col = g.moving ? (1 + g.animFrame) : 0;
+  const sx  = col * LPC_FRAME;
+  const sy  = row * LPC_FRAME;
+  const dw  = LPC_FRAME * LPC_SCALE;
+  const dh  = LPC_FRAME * LPC_SCALE;
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(lpcImg, sx, sy, LPC_FRAME, LPC_FRAME,
+    Math.round(scrX - dw / 2), Math.round(scrY - dh), dw, dh);
+  ctx.restore();
+}
+
+function render() {
+  const cX = g.camX, cY = g.camY;
+  const scrX = Math.round(g.cx - cX);
+  const scrY = Math.round(g.cy - cY);
+  // Lamp origin: character mid-torso
+  const lampX = scrX;
+  const lampY = scrY - SPR_H_PX * 0.55;
+
+  // 1 — tiles (visible range only)
+  const t0x = Math.max(0, Math.floor(cX / DTS) - 1);
+  const t0y = Math.max(0, Math.floor(cY / DTS) - 1);
+  const t1x = Math.min(MAP_W-1, Math.ceil((cX+VW) / DTS));
+  const t1y = Math.min(MAP_H-1, Math.ceil((cY+VH) / DTS));
+  for (let ty = t0y; ty <= t1y; ty++)
+    for (let tx = t0x; tx <= t1x; tx++)
+      ctx.drawImage(TILE_SPRS[MAP[ty][tx]], tx*DTS - cX, ty*DTS - cY);
+
+  // 2 — warm tint
+  const gr = ctx.createRadialGradient(lampX, lampY, 0, lampX, lampY, LAMP_R * 0.75);
+  gr.addColorStop(0,   'rgba(255,200,60,0.13)');
+  gr.addColorStop(0.6, 'rgba(255,150,20,0.05)');
+  gr.addColorStop(1,   'rgba(0,0,0,0)');
+  ctx.save(); ctx.fillStyle = gr;
+  ctx.beginPath(); ctx.arc(lampX, lampY, LAMP_R, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+
+  // 3 — objects + prompts
+  for (const o of OBJECTS) {
+    const ox = Math.round(o.wx - cX - o.sprSz/2);
+    const oy = Math.round(o.wy - cY - o.sprSz/2);
+    ctx.drawImage(o.spr, ox, oy);
+    if (o === g.nearObj) {
+      const txt = '[E]  ' + o.label;
+      const fx  = Math.round(o.wx - cX);
+      const fy  = oy - 6;
+      ctx.save();
+      ctx.font = '14px \'Courier New\', monospace';
+      ctx.textAlign = 'center';
+      const tw = ctx.measureText(txt).width;
+      ctx.fillStyle = 'rgba(10,9,8,0.78)';
+      ctx.fillRect(fx - tw/2 - 6, fy - 18, tw + 12, 22);
+      ctx.fillStyle = '#E8D080';
+      ctx.fillText(txt, fx, fy);
+      ctx.restore();
+    }
+  }
+
+  // 4 — character sprite
+  drawCharacter(scrX, scrY);
+
+  // 5 — darkness overlay
+  dCtx.fillStyle = BG_COL;
+  dCtx.fillRect(0, 0, VW, VH);
+  dCtx.globalCompositeOperation = 'destination-out';
+  const gr2 = dCtx.createRadialGradient(lampX, lampY, 0, lampX, lampY, LAMP_R);
+  gr2.addColorStop(0,             'rgba(0,0,0,1)');
+  gr2.addColorStop(LAMP_FADE,     'rgba(0,0,0,0.96)');
+  gr2.addColorStop(LAMP_FADE+0.2, 'rgba(0,0,0,0.55)');
+  gr2.addColorStop(1,             'rgba(0,0,0,0)');
+  dCtx.fillStyle = gr2;
+  dCtx.beginPath(); dCtx.arc(lampX, lampY, LAMP_R, 0, Math.PI*2); dCtx.fill();
+  dCtx.globalCompositeOperation = 'source-over';
+  ctx.drawImage(darkOff, 0, 0);
+
+  // 6 — joystick
+  if ('ontouchstart' in window) drawJoystick();
+
+  // 7 — instructions
+  if (g.instrAlpha > 0) drawInstructions();
+
+  // 8 — dialog
+  if (g.dialog) drawDialog(g.dialog);
+}
+
+function drawJoystick() {
+  const bx = JOY.active ? JOY.baseX : 80;
+  const by = JOY.active ? JOY.baseY : VH - 80;
+  ctx.save(); ctx.globalAlpha = 0.5;
+  ctx.strokeStyle = '#F2EFE4'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(bx, by, JR, 0, Math.PI*2); ctx.stroke();
+  ctx.fillStyle = 'rgba(242,239,228,0.07)';
+  ctx.beginPath(); ctx.arc(bx, by, JR, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = 'rgba(242,239,228,0.4)';
+  ctx.beginPath(); ctx.arc(bx + JOY.dx*JR, by + JOY.dy*JR, JKR, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+
+function drawInstructions() {
+  const isMobile = 'ontouchstart' in window;
+  const txt = isMobile ? 'Use joystick to move' : '↑ ↓ ← →   to move';
+  ctx.save(); ctx.globalAlpha = g.instrAlpha;
+  ctx.font = '16px \'Courier New\', monospace';
+  ctx.textAlign = 'center';
+  const tw = ctx.measureText(txt).width;
+  ctx.fillStyle = 'rgba(10,9,8,0.65)';
+  ctx.fillRect(VW/2 - tw/2 - 12, 18, tw + 24, 30);
+  ctx.fillStyle = 'rgba(242,239,228,0.88)';
+  ctx.fillText(txt, VW/2, 38);
+  ctx.restore();
+}
+
+function drawDialog(dlg) {
+  const PAD  = 22;
+  const FONT = 16;
+  const FH   = FONT + 8;
+  const lines = dlg.text.split('\n');
+  const BW = VW - 48, BH = PAD*2 + lines.length*FH + 8;
+  const BX = 24, BY = VH - BH - 24;
+
+  // Drop shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.fillRect(BX+4, BY+4, BW, BH);
+
+  // Background
+  ctx.fillStyle = '#131210';
+  ctx.fillRect(BX, BY, BW, BH);
+
+  // Outer border
+  ctx.strokeStyle = '#6A5E3C'; ctx.lineWidth = 2;
+  ctx.strokeRect(BX+1, BY+1, BW-2, BH-2);
+
+  // Inner border
+  ctx.strokeStyle = '#2E2A1E'; ctx.lineWidth = 1;
+  ctx.strokeRect(BX+5, BY+5, BW-10, BH-10);
+
+  // Bevel — top+left lighter
+  ctx.strokeStyle = '#3C3628'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(BX+7, BY+BH-7); ctx.lineTo(BX+7, BY+7); ctx.lineTo(BX+BW-7, BY+7);
+  ctx.stroke();
+
+  // Bevel — bottom+right darker
+  ctx.strokeStyle = '#0A0908';
+  ctx.beginPath();
+  ctx.moveTo(BX+7, BY+BH-7); ctx.lineTo(BX+BW-7, BY+BH-7); ctx.lineTo(BX+BW-7, BY+7);
+  ctx.stroke();
+
+  // Typewriter text
+  ctx.font = `${FONT}px 'Courier New', monospace`;
+  ctx.textAlign = 'left';
+  let remain = dlg.idx;
+  for (let i = 0; i < lines.length; i++) {
+    const chunk = lines[i].slice(0, Math.max(0, remain));
+    remain = Math.max(0, remain - lines[i].length - 1);
+    ctx.fillStyle = '#EED890';
+    ctx.fillText(chunk, BX+PAD, BY+PAD + FH*i + FONT);
+  }
+
+  // Blinking ▼
+  if (dlg.done && Math.floor(Date.now() / 480) % 2 === 0) {
+    ctx.fillStyle = '#C8A028';
+    ctx.textAlign = 'right';
+    ctx.fillText('▼', BX+BW-PAD, BY+BH-PAD/2+4);
+  }
+}
+
+// ── GAME LOOP ─────────────────────────────────────────────
+let lastTs = 0;
+function loop(ts) {
+  const dt = Math.min(ts - lastTs, 50);
+  lastTs = ts;
+  update(dt);
+  render();
+  requestAnimationFrame(loop);
+}
+
+// ── LOAD SPRITES THEN START ───────────────────────────────
+function loadImg(src) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload  = () => res(img);
+    img.onerror = () => rej(new Error('Failed: ' + src));
+    img.src = src;
+  });
+}
+
+loadImg('lpc/character.png').then(img => {
+  lpcImg = img;
+  document.getElementById('loading').style.display = 'none';
+  requestAnimationFrame(ts => { lastTs = ts; requestAnimationFrame(loop); });
+}).catch(err => {
+  document.getElementById('loading').textContent = 'ERROR: ' + err.message;
+});
+</script>
+</body>
+</html>
