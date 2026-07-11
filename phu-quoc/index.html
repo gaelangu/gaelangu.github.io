@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0C1622">
+<title>Phú Quốc · 3D2N for two</title>
+<meta name="description" content="A 3-day, 2-night Phú Quốc itinerary for two — sunsets, seafood, and one big island day.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Albert+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#E9F1F4;          /* moonlit foam (text) */
+    --ink-soft:rgba(233,241,244,.62);
+    --line:rgba(233,241,244,.14);
+    --sun:#FF9D4D;          /* tangerine sun */
+    --sun-deep:#FF7A33;
+    --berry:#E4548C;        /* sim-berry pink */
+    --berry-soft:rgba(228,84,140,.14);
+    --sea:#3FC0B2;          /* lagoon teal */
+    --sea-soft:rgba(63,192,178,.15);
+    --paper:#14212F;        /* card */
+    --paper-2:#1C2C3D;      /* raised card */
+    --page:#0C1622;         /* deep sea night */
+    --radius:20px;
+    --shadow:0 14px 34px -18px rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--page);
+    color:var(--ink);
+    font-family:"Albert Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:16px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:rgba(255,157,77,.45);color:#0C1622}
+  .wrap{max-width:860px;margin:0 auto;padding:0 20px}
+  a{color:var(--sea)}
+  :focus-visible{outline:2px solid var(--sea);outline-offset:2px;border-radius:6px}
+
+  /* ---------- Hero: dusk over the Gulf ---------- */
+  .hero{
+    position:relative;
+    background:linear-gradient(180deg,#0A1120 0%, #152238 36%, #3A2740 60%, #84403A 78%, #C86A36 92%, #E08544 100%);
+    overflow:hidden;
+    padding-top:52px;
+  }
+  .hero::before{ /* faint early stars */
+    content:"";position:absolute;left:0;right:0;top:0;height:58%;pointer-events:none;
+    background-image:
+      radial-gradient(1.5px 1.5px at 12% 22%,rgba(255,255,255,.5),transparent 60%),
+      radial-gradient(1px 1px at 30% 44%,rgba(255,255,255,.32),transparent 60%),
+      radial-gradient(1.5px 1.5px at 55% 18%,rgba(255,255,255,.42),transparent 60%),
+      radial-gradient(1px 1px at 74% 36%,rgba(255,255,255,.3),transparent 60%),
+      radial-gradient(1.3px 1.3px at 90% 14%,rgba(255,255,255,.45),transparent 60%),
+      radial-gradient(1px 1px at 44% 9%,rgba(255,255,255,.3),transparent 60%);
+  }
+  .hero-inner{position:relative;z-index:2;padding-bottom:8px}
+  .eyebrow{
+    font-family:"Space Grotesk",monospace;
+    font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+    color:#FFC79B;margin:0 0 10px;
+  }
+  h1{
+    font-family:"Young Serif",Georgia,serif;
+    font-weight:400;
+    font-size:clamp(3rem,10vw,5.4rem);
+    line-height:1.02;margin:0 0 6px;letter-spacing:-.01em;
+    text-shadow:0 2px 46px rgba(255,138,60,.25);
+  }
+  h1 .accent{color:var(--sun)}
+  .tagline{max-width:34em;font-size:1.06rem;color:var(--ink);margin:8px 0 20px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px}
+  .chip{
+    font-family:"Space Grotesk",monospace;font-size:12.5px;font-weight:600;letter-spacing:.02em;
+    background:rgba(10,17,28,.5);border:1px solid rgba(233,241,244,.2);
+    backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+    padding:7px 12px;border-radius:999px;white-space:nowrap;
+  }
+  .horizon{position:relative;height:118px}
+  .sun{
+    position:absolute;right:9%;bottom:-6px;width:132px;height:132px;border-radius:50%;
+    background:radial-gradient(circle at 34% 28%,#FFD79E 0%,var(--sun) 58%,var(--sun-deep) 100%);
+    box-shadow:0 0 110px 34px rgba(255,138,60,.4),0 0 220px 90px rgba(232,110,60,.18);
+    animation:rise 1.3s ease-out both;
+  }
+  @keyframes rise{from{transform:translateY(52px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .waves{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:64px;display:block}
+
+  /* ---------- Sticky day tabs ---------- */
+  .tabbar{
+    position:sticky;top:0;z-index:30;
+    background:rgba(12,22,34,.9);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .tabbar-inner{display:flex;align-items:center;gap:6px;padding:10px 20px;max-width:860px;margin:0 auto;overflow-x:auto}
+  .tab{
+    font-family:"Space Grotesk",monospace;font-size:13.5px;font-weight:600;letter-spacing:.02em;
+    border:1px solid transparent;background:transparent;color:var(--ink);
+    padding:8px 14px;border-radius:999px;cursor:pointer;white-space:nowrap;
+    transition:background .15s ease,color .15s ease;
+  }
+  .tab:hover{background:rgba(233,241,244,.08)}
+  .tab.active{background:var(--sun);color:#26130A}
+  .heart-total{
+    margin-left:auto;display:inline-flex;align-items:center;gap:6px;
+    font-family:"Space Grotesk",monospace;font-size:13px;font-weight:600;
+    color:#F591B8;background:var(--berry-soft);border:1px solid rgba(228,84,140,.35);
+    padding:7px 12px;border-radius:999px;white-space:nowrap;
+  }
+
+  /* ---------- Panels & day headers ---------- */
+  main{padding:34px 0 20px}
+  .day-head{margin:6px 0 22px}
+  .day-kicker{
+    font-family:"Space Grotesk",monospace;font-size:12px;font-weight:600;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--sun);margin:0 0 6px;
+  }
+  h2{font-family:"Young Serif",Georgia,serif;font-weight:400;font-size:clamp(1.7rem,4.5vw,2.3rem);margin:0 0 6px;line-height:1.15}
+  .day-theme{color:var(--ink-soft);margin:0;max-width:38em}
+
+  /* ---------- Timeline ---------- */
+  .timeline{position:relative;margin:26px 0 8px;padding-left:86px}
+  .timeline::before{
+    content:"";position:absolute;left:64px;top:10px;bottom:10px;
+    border-left:2px dotted rgba(233,241,244,.25);
+  }
+  .stop{position:relative;margin-bottom:16px}
+  .stop-time{
+    position:absolute;left:-86px;top:14px;width:56px;text-align:center;
+    font-family:"Space Grotesk",monospace;font-size:12px;font-weight:700;letter-spacing:.03em;
+    background:var(--paper-2);border:1px solid var(--line);border-radius:8px;padding:4px 0;
+    color:var(--ink);
+  }
+  .stop::before{
+    content:"";position:absolute;left:-27px;top:20px;width:9px;height:9px;border-radius:50%;
+    background:var(--sun);border:2px solid var(--page);box-shadow:0 0 0 1px rgba(233,241,244,.25),0 0 10px rgba(255,157,77,.5);
+  }
+  .card{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px;
+  }
+  .card-top{display:flex;align-items:flex-start;gap:10px}
+  .glyph{
+    flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+    background:var(--sea-soft);font-size:19px;
+  }
+  .card h3{font-size:1.02rem;font-weight:700;margin:0;line-height:1.3;padding-top:7px}
+  .heart{
+    margin-left:auto;flex:none;width:36px;height:36px;border-radius:50%;
+    border:1px solid var(--line);background:var(--paper-2);cursor:pointer;display:grid;place-items:center;
+    transition:transform .12s ease,background .15s ease,border-color .15s ease;
+  }
+  .heart svg{width:18px;height:18px;fill:none;stroke:var(--ink-soft);stroke-width:1.8}
+  .heart:hover{transform:scale(1.06)}
+  .heart.on{background:var(--berry);border-color:var(--berry)}
+  .heart.on svg{fill:#fff;stroke:#fff;animation:pop .25s ease}
+  @keyframes pop{50%{transform:scale(1.35)}}
+  .card p{margin:8px 0 0;color:var(--ink);font-size:.95rem}
+  .meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+  .pill{
+    font-family:"Space Grotesk",monospace;font-size:11px;font-weight:600;letter-spacing:.06em;
+    text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid transparent;
+  }
+  .pill.food{background:rgba(255,138,60,.14);color:#FFB27A;border-color:rgba(255,138,60,.35)}
+  .pill.beach{background:var(--sea-soft);color:#7EDCD2;border-color:rgba(63,192,178,.4)}
+  .pill.sunset{background:var(--berry-soft);color:#F9A8C6;border-color:rgba(228,84,140,.4)}
+  .pill.culture{background:rgba(212,180,90,.14);color:#E7CC84;border-color:rgba(212,180,90,.35)}
+  .pill.transit{background:rgba(233,241,244,.07);color:var(--ink-soft);border-color:var(--line)}
+  .pill.show{background:rgba(148,118,255,.16);color:#BCA9FF;border-color:rgba(148,118,255,.4)}
+  .cost{font-family:"Space Grotesk",monospace;font-size:12.5px;font-weight:600;color:var(--ink-soft)}
+  .maplink{
+    margin-left:auto;font-family:"Space Grotesk",monospace;font-size:12.5px;font-weight:600;
+    text-decoration:none;color:var(--sea);
+  }
+  .maplink:hover{text-decoration:underline}
+  .note{font-size:.86rem;color:var(--ink-soft);margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+
+  /* ---------- Kiss Bridge decision ---------- */
+  .decision{
+    background:linear-gradient(135deg,rgba(228,84,140,.12) 0%,var(--paper) 55%);
+    border:1.5px solid rgba(228,84,140,.4);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:18px;
+  }
+  .decision-label{
+    display:inline-block;font-family:"Space Grotesk",monospace;font-size:11px;font-weight:700;
+    letter-spacing:.16em;text-transform:uppercase;color:#fff;background:var(--berry);
+    padding:5px 11px;border-radius:999px;margin-bottom:6px;
+  }
+  .decision-q{font-family:"Young Serif",Georgia,serif;font-size:1.25rem;margin:2px 0 14px;line-height:1.3}
+  .options{display:grid;grid-template-columns:1fr 54px 1fr;align-items:stretch;gap:0}
+  .option{
+    border:1.5px solid var(--line);border-radius:16px;background:var(--paper-2);padding:14px 15px;
+    cursor:pointer;transition:border-color .15s ease,background .15s ease,transform .12s ease;
+  }
+  .option:hover{transform:translateY(-1px);border-color:rgba(228,84,140,.55)}
+  .option h4{margin:0 0 6px;font-size:1rem;line-height:1.35}
+  .option p{margin:0;font-size:.9rem;color:var(--ink)}
+  .option .opt-cost{display:block;margin-top:10px;font-family:"Space Grotesk",monospace;font-size:12px;font-weight:600;color:var(--ink-soft)}
+  .pick-btn{
+    margin-top:12px;width:100%;font-family:"Space Grotesk",monospace;font-weight:700;font-size:13px;
+    padding:9px 0;border-radius:10px;border:1.5px solid var(--sea);color:var(--sea);background:transparent;cursor:pointer;
+    transition:background .15s ease,color .15s ease,border-color .15s ease;
+  }
+  .option.picked{border-color:var(--berry);background:rgba(228,84,140,.16);box-shadow:0 0 0 3px rgba(228,84,140,.15)}
+  .option.picked .pick-btn{background:var(--berry);border-color:var(--berry);color:#fff}
+  /* the bridge connector */
+  .kiss-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0 4px}
+  .kiss-arm{width:2px;flex:1;max-height:44px;background:rgba(228,84,140,.4);transition:background .2s ease}
+  .kiss-heart{width:30px;height:30px;display:grid;place-items:center;margin:4px 0}
+  .kiss-heart svg{width:24px;height:24px;fill:none;stroke:rgba(228,84,140,.65);stroke-width:1.8;transition:all .2s ease}
+  .decision.locked .kiss-arm{background:var(--berry)}
+  .decision.locked .kiss-heart svg{fill:var(--berry);stroke:var(--berry);animation:pop .3s ease}
+  .decision-status{
+    margin:12px 2px 0;font-family:"Space Grotesk",monospace;font-size:12.5px;font-weight:600;
+    color:var(--ink-soft);
+  }
+  .decision.locked .decision-status{color:#F591B8}
+
+  /* ---------- Essentials ---------- */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  .info-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px}
+  .info-card h3{margin:0 0 8px;font-size:1rem;display:flex;align-items:center;gap:8px}
+  .info-card p{margin:0;font-size:.92rem}
+  .info-card p + p{margin-top:8px}
+  .check-card{grid-column:1 / -1}
+  .check-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .check-head h3{margin:0}
+  .count{margin-left:auto;font-family:"Space Grotesk",monospace;font-size:12.5px;font-weight:700;color:var(--sea)}
+  .bar{height:6px;border-radius:999px;background:rgba(63,192,178,.16);overflow:hidden;margin-bottom:14px}
+  .bar-fill{height:100%;width:0%;background:var(--sea);border-radius:999px;transition:width .25s ease}
+  .checklist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:4px 22px}
+  .checklist li{display:flex}
+  .checklist label{display:flex;align-items:flex-start;gap:10px;padding:7px 2px;cursor:pointer;font-size:.93rem;line-height:1.4}
+  .checklist input{width:18px;height:18px;margin-top:1px;accent-color:var(--sea);cursor:pointer;flex:none}
+  .checklist input:checked + span{color:var(--ink-soft);text-decoration:line-through;text-decoration-color:rgba(233,241,244,.4)}
+  .budget-row{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:.92rem}
+  .budget-row:last-of-type{border-bottom:none}
+  .budget-row .amt{font-family:"Space Grotesk",monospace;font-weight:600;white-space:nowrap;color:var(--ink-soft)}
+  .budget-total{margin-top:10px;padding-top:10px;border-top:2px solid var(--sun);display:flex;justify-content:space-between;font-weight:700}
+  .budget-total .amt{font-family:"Space Grotesk",monospace}
+
+  footer{padding:26px 0 46px;color:var(--ink-soft);font-size:.85rem}
+  footer p{margin:4px 0}
+
+  /* ---------- Mobile ---------- */
+  @media (max-width:640px){
+    .timeline{padding-left:0}
+    .timeline::before{display:none}
+    .stop{margin-bottom:14px}
+    .stop::before{display:none}
+    .stop-time{position:static;display:inline-block;width:auto;padding:3px 10px;margin-bottom:6px}
+    .options{grid-template-columns:1fr}
+    .kiss-mid{flex-direction:row;height:44px;padding:4px 0}
+    .kiss-arm{width:auto;height:2px;flex:1;max-height:none;max-width:none}
+    .checklist{grid-template-columns:1fr}
+    .grid{grid-template-columns:1fr}
+    .sun{width:104px;height:104px;right:6%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap hero-inner">
+    <p class="eyebrow">SIN ✈ PQC · 3 days · 2 nights · 2 humans</p>
+    <h1>Phú <span class="accent">Quốc</span></h1>
+    <p class="tagline">A long weekend on Đảo Ngọc, the Pearl Island — where the whole west coast faces the sunset, every meal comes off a grill, and the plane ride home is shorter than a movie.</p>
+    <div class="chips">
+      <span class="chip">✈ ~2h direct from Changi</span>
+      <span class="chip">🕰 GMT+7 — 1h behind SG</span>
+      <span class="chip">💵 ₫19k ≈ S$1</span>
+      <span class="chip">🛂 Visa-free for SG passports</span>
+      <span class="chip">🌇 Sunset ≈ 6:15–6:30 PM</span>
+    </div>
+  </div>
+  <div class="horizon" aria-hidden="true">
+    <div class="sun"></div>
+    <svg class="waves" viewBox="0 0 1200 64" preserveAspectRatio="none">
+      <path d="M0,28 C150,52 300,8 450,26 C600,44 750,10 900,26 C1050,42 1150,20 1200,30 L1200,64 L0,64 Z" fill="rgba(63,192,178,.16)"/>
+      <path d="M0,40 C160,60 320,22 480,38 C640,54 800,24 960,38 C1080,48 1160,34 1200,40 L1200,64 L0,64 Z" fill="#0C1622"/>
+    </svg>
+  </div>
+</header>
+
+<nav class="tabbar" id="tabs" aria-label="Trip sections">
+  <div class="tabbar-inner" role="tablist">
+    <button class="tab active" data-tab="d1" role="tab" aria-selected="true" aria-controls="panel-d1">Day 1</button>
+    <button class="tab" data-tab="d2" role="tab" aria-selected="false" aria-controls="panel-d2">Day 2</button>
+    <button class="tab" data-tab="d3" role="tab" aria-selected="false" aria-controls="panel-d3">Day 3</button>
+    <button class="tab" data-tab="info" role="tab" aria-selected="false" aria-controls="panel-info">Essentials</button>
+    <span class="heart-total" title="Things you two have hearted">♥ <span id="heartCount">0</span></span>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ================= DAY 1 ================= -->
+  <section id="panel-d1" role="tabpanel">
+    <div class="day-head">
+      <p class="day-kicker">Day 1 · Fly · Long Beach · Night Market</p>
+      <h2>Land, and slow all the way down</h2>
+      <p class="day-theme">The morning flight puts you on the sand by early afternoon. Today has exactly one job: recalibrate to island speed before the sun hits the water.</p>
+    </div>
+
+    <div class="timeline">
+      <div class="stop">
+        <span class="stop-time">10:45</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">✈️</span><h3>SIN → PQC, direct</h3></div>
+          <p>Scoot, VietJet and Sun PhuQuoc Airways all fly it nonstop in about two hours. Wheels-down around lunchtime — and you land an hour younger, since Phú Quốc runs one hour behind Singapore.</p>
+          <div class="meta"><span class="pill transit">Transit</span><span class="cost">oft. S$180–400 return pp</span></div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">12:15</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">🚕</span><h3>Grab to the Long Beach strip</h3></div>
+          <p>15–25 minutes to the Dương Đông / Long Beach area. Drop bags if the room isn’t ready — the beach doesn’t care about check-in times.</p>
+          <div class="meta"><span class="pill transit">Transit</span><span class="cost">₫120–200k · ~S$6–11</span></div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">13:00</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">🍜</span><h3>Bún quậy Kiến Xây</h3>
+            <button class="heart" data-heart="d1-bunquay" aria-label="Shortlist Bún quậy Kiến Xây"><svg viewBox="0 0 24 24"><path d="M12 21c-4.8-3.6-8.4-6.6-8.4-10.2C3.6 7.9 5.8 6 8.4 6c1.5 0 2.9.7 3.6 1.9C12.7 6.7 14.1 6 15.6 6c2.6 0 4.8 1.9 4.8 4.8 0 3.6-3.6 6.6-8.4 10.2z"/></svg></button>
+          </div>
+          <p>Phú Quốc’s cult first meal: squid-and-fish-paste noodles pounded to order, and <em>you</em> mix your own kumquat–salt–pepper dip at the table. Messy, fast, perfect.</p>
+          <div class="meta"><span class="pill food">Food</span><span class="cost">₫50–80k pp · ~S$3–4</span><a class="maplink" href="https://www.google.com/maps/search/?api=1&query=Bun+Quay+Kien+Xay+Phu+Quoc" target="_blank" rel="noopener">Map ↗</a></div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">14:30</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">🏖</span><h3>Check in · first swim · optional massage</h3>
+            <button class="heart" data-heart="d1-swim" aria-label="Shortlist first swim and massage"><svg viewBox="0 0 24 24"><path d="M12 21c-4.8-3.6-8.4-6.6-8.4-10.2C3.6 7.9 5.8 6 8.4 6c1.5 0 2.9.7 3.6 1.9C12.7 6.7 14.1 6 15.6 6c2.6 0 4.8 1.9 4.8 4.8 0 3.6-3.6 6.6-8.4 10.2z"/></svg></button>
+          </div>
+          <p>Pool or Long Beach shallows, coconut in hand. If the flight took anything out of you, a 60-minute beachside massage puts it back.</p>
+          <div class="meta"><span class="pill beach">Beach</span><span class="cost">massage ₫450–800k pp</span></div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">17:15</span>
+        <div class="decision" data-decision-id="d1-sunset">
+          <span class="decision-label">You two decide</span>
+          <p class="decision-q">Sunset № 1 — where do you watch the first one?</p>
+          <div class="options">
+            <div class="option" data-pick="sand" data-label="Toes in the sand at OCSEN">
+              <h4>🦶 Toes in the sand — OCSEN Beach Bar</h4>
+              <p>Beanbags right on Long Beach, feet in the water, easy DJ set as the sun drops straight into the sea. Walkable from most Long Beach stays.</p>
+              <span class="opt-cost">Cocktails ₫120–180k · <a href="https://www.google.com/maps/search/?api=1&query=OCSEN+Beach+Bar+Phu+Quoc" target="_blank" rel="noopener">Map ↗</a></span>
+              <button class="pick-btn" type="button">Pick this</button>
+            </div>
+            <div class="kiss-mid" aria-hidden="true">
+              <span class="kiss-arm"></span>
+              <span class="kiss-heart"><svg viewBox="0 0 24 24"><path d="M12 21c-4.8-3.6-8.4-6.6-8.4-10.2C3.6 7.9 5.8 6 8.4 6c1.5 0 2.9.7 3.6 1.9C12.7 6.7 14.1 6 15.6 6c2.6 0 4.8 1.9 4.8 4.8 0 3.6-3.6 6.6-8.4 10.2z"/></svg></span>
+              <span class="kiss-arm"></span>
+            </div>
+            <div class="option" data-pick="rocks" data-label="Rocks &amp; a view at Rock Sunset Bar">
+              <h4>🪨 Rocks &amp; a view — Rock Sunset Bar, Ông Lang</h4>
+              <p>Perched on boulders over a quieter bay, 20 minutes north. Moodier, fewer people, same fireball.</p>
+              <span class="opt-cost">Cocktails ₫120–180k + Grab · <a href="https://www.google.com/maps/search/?api=1&query=Rock+Sunset+Bar+Ong+Lang+Phu+Quoc" target="_blank" rel="noopener">Map ↗</a></span>
+              <button class="pick-btn" type="button">Pick this</button>
+            </div>
+          </div>
+          <p class="decision-status">Tap a side — it saves for both of you.</p>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">19:00</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">🦑</span><h3>Dinh Cậu Night Market</h3>
+            <button class="heart" data-heart="d1-market" aria-label="Shortlist Dinh Cậu Night Market"><svg viewBox="0 0 24 24"><path d="M12 21c-4.8-3.6-8.4-6.6-8.4-10.2C3.6 7.9 5.8 6 8.4 6c1.5 0 2.9.7 3.6 1.9C12.7 6.7 14.1 6 15.6 6c2.6 0 4.8 1.9 4.8 4.8 0 3.6-3.6 6.6-8.4 10.2z"/></svg></button>
+          </div>
+          <p>Dinner is a walking route: grilled scallops with scallion oil &amp; peanuts, BBQ squid, sea urchin if you’re brave, a sim-berry smoothie, rolled ice-cream to close. Stroll it off at the little Dinh Cậu rock temple by the harbour.</p>
+          <div class="meta"><span class="pill food">Food</span><span class="pill culture">Wander</span><span class="cost">₫400–800k for two</span><a class="maplink" href="https://www.google.com/maps/search/?api=1&query=Phu+Quoc+Night+Market" target="_blank" rel="noopener">Map ↗</a></div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">21:30</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">🍸</span><h3>Nightcap at INK 360 <span style="font-weight:500;color:var(--ink-soft)">(optional)</span></h3>
+            <button class="heart" data-heart="d1-ink360" aria-label="Shortlist INK 360 nightcap"><svg viewBox="0 0 24 24"><path d="M12 21c-4.8-3.6-8.4-6.6-8.4-10.2C3.6 7.9 5.8 6 8.4 6c1.5 0 2.9.7 3.6 1.9C12.7 6.7 14.1 6 15.6 6c2.6 0 4.8 1.9 4.8 4.8 0 3.6-3.6 6.6-8.4 10.2z"/></svg></button>
+          </div>
+          <p>The InterContinental’s rooftop — highest cocktails on the island, all glitter and sea breeze. Or skip it and sleep: tomorrow is the big one.</p>
+          <div class="meta"><span class="pill sunset">Night</span><span class="cost">₫250–400k per drink</span><a class="maplink" href="https://www.google.com/maps/search/?api=1&query=INK+360+Phu+Quoc" target="_blank" rel="noopener">Map ↗</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DAY 2 ================= -->
+  <section id="panel-d2" role="tabpanel" hidden>
+    <div class="day-head">
+      <p class="day-kicker">Day 2 · An Thới · Sao Beach · Sunset Town</p>
+      <h2>The big south — sky, sea &amp; a kiss</h2>
+      <p class="day-theme">Everything spectacular on Phú Quốc is stacked at its southern tip. One golden rule today: whatever you do, be at Kiss Bridge for golden hour.</p>
+    </div>
+
+    <div class="timeline">
+      <div class="stop">
+        <span class="stop-time">08:00</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">🍳</span><h3>Breakfast, then roll south</h3></div>
+          <p>Eat at the hotel, then Grab ~40 minutes down to An Thới town at the island’s tip. Podcast-length, coastline views.</p>
+          <div class="meta"><span class="pill transit">Transit</span><span class="cost">₫250–350k one-way</span></div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">09:00</span>
+        <div class="decision" data-decision-id="d2-main">
+          <span class="decision-label">You two decide</span>
+          <p class="decision-q">The big one — spend the morning in the sky, or on the sea?</p>
+          <div class="options">
+            <div class="option" data-pick="sky" data-label="Sky day — Hòn Thơm cable car &amp; Sun World">
+              <h4>🚡 Sky day — Hòn Thơm cable car + Sun World</h4>
+              <p>Glide almost 8 km over the An Thới archipelago on the record-holding sea-crossing cable car, then a beach-and-waterpark island (Aquatopia) on the far side. Zero planning required.</p>
+              <span class="opt-cost">≈₫700k–1.1M pp combos · runs ~9 AM–5 PM — check current bundles · <a href="https://www.google.com/maps/search/?api=1&query=Hon+Thom+Cable+Car+An+Thoi" target="_blank" rel="noopener">Map ↗</a></span>
+              <button class="pick-btn" type="button">Pick this</button>
+            </div>
+            <div class="kiss-mid" aria-hidden="true">
+              <span class="kiss-arm"></span>
+              <span class="kiss-heart"><svg viewBox="0 0 24 24"><path d="M12 21c-4.8-3.6-8.4-6.6-8.4-10.2C3.6 7.9 5.8 6 8.4 6c1.5 0 2.9.7 3.6 1.9C12.7 6.7 14.1 6 15.6 6c2.6 0 4.8 1.9 4.8 4.8 0 3.6-3.6 6.6-8.4 10.2z"/></svg></span>
+              <span class="kiss-arm"></span>
+            </div>
+            <div class="option" data-pick="sea" data-label="Sea day — island-hopping by speedboat">
+              <h4>🚤 Sea day — island-hopping by speedboat</h4>
+              <p>Snorkel the coral at Hòn Gầm Ghì, beach-bum on Hòn Mây Rút’s ridiculous sandbar, seafood lunch on deck. Feels further from real life than the cable car.</p>
+              <span class="opt-cost">≈₫850k–1.4M pp incl. lunch &amp; gear — book by the evening before (hotel desk / Klook)</span>
+              <button class="pick-btn" type="button">Pick this</button>
+            </div>
+          </div>
+          <p class="decision-status">Tap a side — it saves for both of you.</p>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">12:30</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">🦀</span><h3>Lunch wherever you land</h3></div>
+          <p>On the boat if you chose the sea; at Sun World’s beach clubs if you chose the sky. Doing your own thing? The shacks at Bãi Sao grill flower crab over coals.</p>
+          <div class="meta"><span class="pill food">Food</span><span class="cost">₫200–500k for two</span></div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">14:30</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">🏝</span><h3>Bãi Sao (Sao Beach)</h3>
+            <button class="heart" data-heart="d2-saobeach" aria-label="Shortlist Sao Beach"><svg viewBox="0 0 24 24"><path d="M12 21c-4.8-3.6-8.4-6.6-8.4-10.2C3.6 7.9 5.8 6 8.4 6c1.5 0 2.9.7 3.6 1.9C12.7 6.7 14.1 6 15.6 6c2.6 0 4.8 1.9 4.8 4.8 0 3.6-3.6 6.6-8.4 10.2z"/></svg></button>
+          </div>
+          <p>The postcard: a crescent of squeaky white sand and bath-warm shallows, palm swings included. If the boat ran long, skip it without guilt — you’ve already had the water.</p>
+          <div class="meta"><span class="pill beach">Beach</span><span class="cost">loungers ~₫100k</span><a class="maplink" href="https://www.google.com/maps/search/?api=1&query=Bai+Sao+Beach+Phu+Quoc" target="_blank" rel="noopener">Map ↗</a></div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">16:15</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">🛕</span><h3>Hộ Quốc Pagoda <span style="font-weight:500;color:var(--ink-soft)">(optional detour)</span></h3>
+            <button class="heart" data-heart="d2-pagoda" aria-label="Shortlist Hộ Quốc Pagoda"><svg viewBox="0 0 24 24"><path d="M12 21c-4.8-3.6-8.4-6.6-8.4-10.2C3.6 7.9 5.8 6 8.4 6c1.5 0 2.9.7 3.6 1.9C12.7 6.7 14.1 6 15.6 6c2.6 0 4.8 1.9 4.8 4.8 0 3.6-3.6 6.6-8.4 10.2z"/></svg></button>
+          </div>
+          <p>A serene Trúc Lâm temple stacked up a hillside, staring straight out to sea — 20 minutes north of Bãi Sao, 25 minutes of quiet. Shoulders covered.</p>
+          <div class="meta"><span class="pill culture">Culture</span><span class="cost">Free</span><a class="maplink" href="https://www.google.com/maps/search/?api=1&query=Ho+Quoc+Pagoda+Phu+Quoc" target="_blank" rel="noopener">Map ↗</a></div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">17:45</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">💋</span><h3>Kiss Bridge at golden hour</h3>
+            <button class="heart" data-heart="d2-kissbridge" aria-label="Shortlist Kiss Bridge"><svg viewBox="0 0 24 24"><path d="M12 21c-4.8-3.6-8.4-6.6-8.4-10.2C3.6 7.9 5.8 6 8.4 6c1.5 0 2.9.7 3.6 1.9C12.7 6.7 14.1 6 15.6 6c2.6 0 4.8 1.9 4.8 4.8 0 3.6-3.6 6.6-8.4 10.2z"/></svg></button>
+          </div>
+          <p>Two bridge spans reach across the water in Sunset Town and stop just short of touching — aimed dead at the setting sun. Be on it between 6:00 and 6:30 for <em>the</em> photo — day access gates close ~6:30 sharp — then wander Central Village’s Mediterranean lanes.</p>
+          <div class="meta"><span class="pill sunset">Sunset</span><span class="cost">entry bundled with show tickets</span><a class="maplink" href="https://www.google.com/maps/search/?api=1&query=Kiss+Bridge+Sunset+Town+Phu+Quoc" target="_blank" rel="noopener">Map ↗</a></div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">19:00</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">🍝</span><h3>Dinner in Sunset Town</h3></div>
+          <p>Eat in the pastel lanes — or take the dinner-show buffet at Sun Bavaria if you bought a combo. (Rather eat back in town later? Crab House and Xin Chào in Dương Đông both do a proper seafood send-off.)</p>
+          <div class="meta"><span class="pill food">Food</span><span class="cost">₫500k–1.2M for two</span></div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">21:00</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">🎆</span><h3>Kiss of the Sea</h3>
+            <button class="heart" data-heart="d2-kissofsea" aria-label="Shortlist Kiss of the Sea show"><svg viewBox="0 0 24 24"><path d="M12 21c-4.8-3.6-8.4-6.6-8.4-10.2C3.6 7.9 5.8 6 8.4 6c1.5 0 2.9.7 3.6 1.9C12.7 6.7 14.1 6 15.6 6c2.6 0 4.8 1.9 4.8 4.8 0 3.6-3.6 6.6-8.4 10.2z"/></svg></button>
+          </div>
+          <p>Sun Group’s over-water spectacle on a floating stage: water screens, lasers, fire, and a fireworks finale — about 30 minutes of “okay, wow.” Middle rows dodge the splash zone.</p>
+          <div class="meta"><span class="pill show">Show</span><span class="cost">from ≈₫300k pp · prime zones ₫500k–1M</span></div>
+          <p class="note">Usually plays ~9:00 PM at Sunset Town but goes dark some nights (Tuesdays at last check) — confirm the schedule for your date and book seats ahead. Earlier option: <strong>Symphony of the Sea</strong> runs nightly around 7:30 PM (from ≈₫550k) if you’d rather beat the late finish.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DAY 3 ================= -->
+  <section id="panel-d3" role="tabpanel" hidden>
+    <div class="day-head">
+      <p class="day-kicker">Day 3 · Slow morning · Souvenirs · Fly home</p>
+      <h2>One last slow morning</h2>
+      <p class="day-theme">Built for an afternoon-or-evening flight home — shuffle earlier if yours leaves sooner. Nothing today is worth rushing for.</p>
+    </div>
+
+    <div class="timeline">
+      <div class="stop">
+        <span class="stop-time">08:30</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">☕</span><h3>Brunch at Chuồn Chuồn Bistro</h3>
+            <button class="heart" data-heart="d3-chuonchuon" aria-label="Shortlist Chuồn Chuồn Bistro"><svg viewBox="0 0 24 24"><path d="M12 21c-4.8-3.6-8.4-6.6-8.4-10.2C3.6 7.9 5.8 6 8.4 6c1.5 0 2.9.7 3.6 1.9C12.7 6.7 14.1 6 15.6 6c2.6 0 4.8 1.9 4.8 4.8 0 3.6-3.6 6.6-8.4 10.2z"/></svg></button>
+          </div>
+          <p>The hilltop “dragonfly” café above Dương Đông — mango pancakes, coconut coffee, and one last long look over the rooftops to the sea.</p>
+          <div class="meta"><span class="pill food">Food</span><span class="cost">₫150–300k pp</span><a class="maplink" href="https://www.google.com/maps/search/?api=1&query=Chuon+Chuon+Bistro+Phu+Quoc" target="_blank" rel="noopener">Map ↗</a></div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">10:00</span>
+        <div class="decision" data-decision-id="d3-morning">
+          <span class="decision-label">You two decide</span>
+          <p class="decision-q">Last morning — taste the island, or float in it?</p>
+          <div class="options">
+            <div class="option" data-pick="flavours" data-label="Island flavours loop">
+              <h4>🌶 Island flavours loop</h4>
+              <p>Pepper farm → Khải Hoàn fish-sauce barrel house → pearl showroom: Phú Quốc’s three famous exports in two unhurried hours. Free-to-cheap, big on smells.</p>
+              <span class="opt-cost">Mostly free · small tastings · <a href="https://www.google.com/maps/search/?api=1&query=Khai+Hoan+Fish+Sauce+Phu+Quoc" target="_blank" rel="noopener">Map ↗</a></span>
+              <button class="pick-btn" type="button">Pick this</button>
+            </div>
+            <div class="kiss-mid" aria-hidden="true">
+              <span class="kiss-arm"></span>
+              <span class="kiss-heart"><svg viewBox="0 0 24 24"><path d="M12 21c-4.8-3.6-8.4-6.6-8.4-10.2C3.6 7.9 5.8 6 8.4 6c1.5 0 2.9.7 3.6 1.9C12.7 6.7 14.1 6 15.6 6c2.6 0 4.8 1.9 4.8 4.8 0 3.6-3.6 6.6-8.4 10.2z"/></svg></span>
+              <span class="kiss-arm"></span>
+            </div>
+            <div class="option" data-pick="float" data-label="One last float">
+              <h4>🌊 One last float</h4>
+              <p>Ông Lang’s mellow bay or the hotel pool. Zero agenda, maximum horizontal, phone face-down.</p>
+              <span class="opt-cost">Free · <a href="https://www.google.com/maps/search/?api=1&query=Ong+Lang+Beach+Phu+Quoc" target="_blank" rel="noopener">Map ↗</a></span>
+              <button class="pick-btn" type="button">Pick this</button>
+            </div>
+          </div>
+          <p class="decision-status">Tap a side — it saves for both of you.</p>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">12:00</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">🧳</span><h3>Check out · bánh mì run</h3></div>
+          <p>Charm your way to a late checkout or leave bags at the desk. Grab bánh mì for the road — airport food won’t beat it.</p>
+          <div class="meta"><span class="pill transit">Logistics</span><span class="cost">bánh mì ₫25–50k</span></div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">13:00</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">🛍</span><h3>Souvenir sweep</h3>
+            <button class="heart" data-heart="d3-souvenirs" aria-label="Shortlist souvenir shopping"><svg viewBox="0 0 24 24"><path d="M12 21c-4.8-3.6-8.4-6.6-8.4-10.2C3.6 7.9 5.8 6 8.4 6c1.5 0 2.9.7 3.6 1.9C12.7 6.7 14.1 6 15.6 6c2.6 0 4.8 1.9 4.8 4.8 0 3.6-3.6 6.6-8.4 10.2z"/></svg></button>
+          </div>
+          <p>Phú Quốc green peppercorns, sim-berry wine, pearls if you’re feeling romantic. Fish sauce only flies if it’s airport-sealed — buy it airside, or let it go.</p>
+          <div class="meta"><span class="pill culture">Shopping</span><span class="cost">₫100k–∞</span></div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">15:00</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">🚕</span><h3>To the airport</h3></div>
+          <p>Only ~20 minutes from Long Beach; be there two hours ahead. PQC is small and painless.</p>
+          <div class="meta"><span class="pill transit">Transit</span><span class="cost">₫120–200k</span></div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <span class="stop-time">17:00</span>
+        <div class="card">
+          <div class="card-top"><span class="glyph">🛬</span><h3>PQC → SIN</h3></div>
+          <p>Two hours home, clocks jump an hour forward, and you’re back in Bedok smelling faintly of scallion oil and sunscreen. Start plotting the return.</p>
+          <div class="meta"><span class="pill transit">Transit</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ESSENTIALS ================= -->
+  <section id="panel-info" role="tabpanel" hidden>
+    <div class="day-head">
+      <p class="day-kicker">Essentials · Book · Pack · Eat</p>
+      <h2>Everything else you need</h2>
+      <p class="day-theme">The unglamorous stuff, handled — plus two checklists you can tick together.</p>
+    </div>
+
+    <div class="grid">
+      <div class="info-card">
+        <h3>✈️ Getting there</h3>
+        <p>Scoot, VietJet and Sun PhuQuoc Airways fly Changi → Phú Quốc direct in about 2 hours, with roughly two departures a day between them. The morning rotation lands before lunch — take it.</p>
+        <p>Return fares commonly run S$180–400 pp; sale season goes lower.</p>
+      </div>
+      <div class="info-card">
+        <h3>🛂 Entry</h3>
+        <p>Singapore passports enter Vietnam visa-free for up to 30 days. Passport valid 6+ months, return ticket handy — that’s it.</p>
+      </div>
+      <div class="info-card">
+        <h3>💵 Money</h3>
+        <p>Vietnamese đồng. Rough maths: <strong>₫100k ≈ S$5 · ₫1M ≈ S$52</strong>. Cards work at resorts and malls; cash rules markets, shacks and boats. ATMs cluster in Dương Đông.</p>
+      </div>
+      <div class="info-card">
+        <h3>🚕 Getting around</h3>
+        <p>Grab (cars &amp; bikes) works island-wide and beats haggling. Distances are real — town to the southern tip is 35–45 min. Scooters run ₫150–250k/day if you’re licensed (IDP); skip them in the rain.</p>
+      </div>
+      <div class="info-card">
+        <h3>🌤 Weather logic</h3>
+        <p><strong>Nov–Apr</strong> is dry season: glassy west-coast seas, peak everything. <strong>May–Oct</strong> is green season: sunny mornings, theatrical late-afternoon downpours — front-load beaches, save spa and shows for late day. Boats still run most days.</p>
+      </div>
+      <div class="info-card">
+        <h3>🛏 Where to sleep (3 speeds)</h3>
+        <p>💎 <strong>Regent / InterContinental Long Beach</strong> — full resort mode, S$300+.<br>🌿 <strong>La Veranda (MGallery)</strong> — colonial-villa charm on the sand, S$180–280.<br>💛 <strong>Lahana Resort</strong> — hillside pools 5 min from town, S$90–150.</p>
+        <p>Base on Long Beach / Dương Đông: sunset every night, dinner walkable.</p>
+      </div>
+      <div class="info-card">
+        <h3>📶 Connect &amp; plugs</h3>
+        <p>Grab an eSIM (Airalo, Nomad) before you fly, or a Viettel SIM in arrivals. Power is 220V with two-pin type A/C sockets — SG plugs need an adapter.</p>
+      </div>
+      <div class="info-card">
+        <h3>🗣 Five phrases</h3>
+        <p><em>xin chào</em> — hello · <em>cảm ơn</em> — thank you · <em>ngon quá!</em> — so good! · <em>tính tiền</em> — bill, please · <em>một, hai, ba, dô!</em> — cheers!</p>
+      </div>
+
+      <div class="info-card check-card">
+        <div class="check-head"><h3>🎒 Packing, together</h3><span class="count" data-count>0/12</span></div>
+        <div class="bar"><div class="bar-fill"></div></div>
+        <ul class="checklist">
+          <li><label><input type="checkbox" data-check="pk-passport"><span>Passports (6+ months validity)</span></label></li>
+          <li><label><input type="checkbox" data-check="pk-sunscreen"><span>Reef-safe sunscreen</span></label></li>
+          <li><label><input type="checkbox" data-check="pk-repellent"><span>Mosquito repellent</span></label></li>
+          <li><label><input type="checkbox" data-check="pk-swim"><span>Swimwear ×2 each</span></label></li>
+          <li><label><input type="checkbox" data-check="pk-drybag"><span>Dry bag for boat day</span></label></li>
+          <li><label><input type="checkbox" data-check="pk-rain"><span>Light rain shell (green season)</span></label></li>
+          <li><label><input type="checkbox" data-check="pk-hat"><span>Hat + sunnies</span></label></li>
+          <li><label><input type="checkbox" data-check="pk-sandals"><span>Sandals that can get wet</span></label></li>
+          <li><label><input type="checkbox" data-check="pk-adapter"><span>Universal power adapter</span></label></li>
+          <li><label><input type="checkbox" data-check="pk-seasick"><span>Seasickness tabs (speedboat)</span></label></li>
+          <li><label><input type="checkbox" data-check="pk-cash"><span>Small-notes cash wallet</span></label></li>
+          <li><label><input type="checkbox" data-check="pk-maps"><span>Offline maps downloaded</span></label></li>
+        </ul>
+      </div>
+
+      <div class="info-card check-card">
+        <div class="check-head"><h3>🍽 The food hit-list</h3><span class="count" data-count>0/11</span></div>
+        <div class="bar"><div class="bar-fill"></div></div>
+        <ul class="checklist">
+          <li><label><input type="checkbox" data-check="fd-bunquay"><span>Bún quậy — the DIY noodle ritual</span></label></li>
+          <li><label><input type="checkbox" data-check="fd-goica"><span>Gỏi cá trích — herring salad wraps</span></label></li>
+          <li><label><input type="checkbox" data-check="fd-scallops"><span>Grilled scallops, scallion oil &amp; peanuts</span></label></li>
+          <li><label><input type="checkbox" data-check="fd-crab"><span>Hàm Ninh flower crab</span></label></li>
+          <li><label><input type="checkbox" data-check="fd-urchin"><span>Sea urchin off the grill</span></label></li>
+          <li><label><input type="checkbox" data-check="fd-banhmi"><span>Bánh mì breakfast</span></label></li>
+          <li><label><input type="checkbox" data-check="fd-coconutcoffee"><span>Coconut coffee</span></label></li>
+          <li><label><input type="checkbox" data-check="fd-simsmoothie"><span>Sim-berry smoothie</span></label></li>
+          <li><label><input type="checkbox" data-check="fd-simwine"><span>Sim wine nightcap</span></label></li>
+          <li><label><input type="checkbox" data-check="fd-icecream"><span>Rolled ice-cream at the market</span></label></li>
+          <li><label><input type="checkbox" data-check="fd-pepper"><span>Anything with Phú Quốc green peppercorns</span></label></li>
+        </ul>
+      </div>
+
+      <div class="info-card check-card">
+        <div class="check-head"><h3>🧮 Budget snapshot — for two</h3></div>
+        <div class="budget-row"><span>The big Day-2 activity (sky or sea)</span><span class="amt">₫2.0–2.8M</span></div>
+        <div class="budget-row"><span>Kiss of the Sea (or Symphony) tickets</span><span class="amt">₫1.0–1.4M</span></div>
+        <div class="budget-row"><span>Food &amp; drinks × 3 days</span><span class="amt">₫1.6–2.4M</span></div>
+        <div class="budget-row"><span>Grabs all trip</span><span class="amt">₫0.7–1.0M</span></div>
+        <div class="budget-row"><span>Sunset cocktails, spa, sundries</span><span class="amt">₫0.7–1.2M</span></div>
+        <div class="budget-total"><span>On-island total</span><span class="amt">≈₫6–8.8M · ~S$315–460</span></div>
+        <p style="margin:10px 0 0;font-size:.85rem;color:var(--ink-soft)">Before flights and bed. Estimates as of July 2026 — spot-check the big tickets before you book.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>♥ hearts, 💋 picks and ✓ ticks save automatically and are <strong>shared with anyone viewing this page</strong> — that’s the point. Reopen to pull in each other’s latest taps.</p>
+    <p>Prices are honest ballparks (₫19k ≈ S$1, July 2026). Show schedules and combo pricing shift — reconfirm the day-of.</p>
+  </footer>
+</main>
+
+<script>
+(function(){
+  var KEY = 'pq_3d2n_v1';
+  var store = (typeof window !== 'undefined' && window.storage) ? window.storage : null;
+  var state = { hearts:{}, picks:{}, checks:{} };
+  var saveTimer = null;
+  var TABS = ['d1','d2','d3','info'];
+
+  function all(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
+
+  function queueSave(){
+    if(!store) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      try {
+        store.set(KEY, JSON.stringify(state), true).catch(function(){});
+      } catch(e){}
+    }, 400);
+  }
+
+  function render(){
+    // hearts
+    var count = 0;
+    all('[data-heart]').forEach(function(btn){
+      var on = !!state.hearts[btn.getAttribute('data-heart')];
+      if(on) count++;
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    var badge = document.getElementById('heartCount');
+    if(badge) badge.textContent = String(count);
+
+    // decisions
+    all('.decision').forEach(function(dec){
+      var id = dec.getAttribute('data-decision-id');
+      var chosen = state.picks[id] || null;
+      dec.classList.toggle('locked', !!chosen);
+      var chosenLabel = '';
+      all('.option', dec).forEach(function(opt){
+        var on = chosen === opt.getAttribute('data-pick');
+        opt.classList.toggle('picked', on);
+        var b = opt.querySelector('.pick-btn');
+        if(b) b.textContent = on ? '💋 Picked' : 'Pick this';
+        if(on) chosenLabel = opt.querySelector('h4') ? opt.querySelector('h4').textContent : '';
+      });
+      var status = dec.querySelector('.decision-status');
+      if(status) status.textContent = chosen
+        ? ('Locked in together: ' + chosenLabel.trim())
+        : 'Tap a side — it saves for both of you.';
+    });
+
+    // checklists
+    all('input[data-check]').forEach(function(cb){
+      cb.checked = !!state.checks[cb.getAttribute('data-check')];
+    });
+    all('.check-card').forEach(function(cardEl){
+      var boxes = all('input[data-check]', cardEl);
+      if(!boxes.length) return;
+      var done = boxes.filter(function(b){ return b.checked; }).length;
+      var countEl = cardEl.querySelector('[data-count]');
+      if(countEl) countEl.textContent = done + '/' + boxes.length;
+      var fill = cardEl.querySelector('.bar-fill');
+      if(fill) fill.style.width = Math.round(done / boxes.length * 100) + '%';
+    });
+  }
+
+  function setTab(t){
+    TABS.forEach(function(k){
+      var p = document.getElementById('panel-' + k);
+      var b = document.querySelector('[data-tab="' + k + '"]');
+      var on = (k === t);
+      if(p) p.hidden = !on;
+      if(b){ b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); }
+    });
+    var bar = document.getElementById('tabs');
+    if(bar){
+      var y = bar.getBoundingClientRect().top + window.scrollY;
+      if(window.scrollY > y + 10) window.scrollTo({ top: Math.max(y - 6, 0), behavior:'smooth' });
+    }
+  }
+
+  document.addEventListener('click', function(ev){
+    var heart = ev.target.closest ? ev.target.closest('[data-heart]') : null;
+    if(heart){
+      var hid = heart.getAttribute('data-heart');
+      if(state.hearts[hid]) delete state.hearts[hid]; else state.hearts[hid] = true;
+      render(); queueSave(); return;
+    }
+    var opt = ev.target.closest ? ev.target.closest('.option') : null;
+    if(opt){
+      if(ev.target.closest('a')) return; // let map links through
+      var dec = opt.closest('.decision');
+      var did = dec.getAttribute('data-decision-id');
+      var pick = opt.getAttribute('data-pick');
+      state.picks[did] = (state.picks[did] === pick) ? null : pick;
+      render(); queueSave(); return;
+    }
+    var tab = ev.target.closest ? ev.target.closest('[data-tab]') : null;
+    if(tab){ setTab(tab.getAttribute('data-tab')); }
+  });
+
+  document.addEventListener('change', function(ev){
+    var cb = ev.target.closest ? ev.target.closest('input[data-check]') : null;
+    if(cb){
+      var cid = cb.getAttribute('data-check');
+      if(cb.checked) state.checks[cid] = true; else delete state.checks[cid];
+      render(); queueSave();
+    }
+  });
+
+  function load(){
+    if(!store){ render(); return; }
+    var p;
+    try { p = store.get(KEY, true); } catch(e){ render(); return; }
+    Promise.resolve(p).then(function(res){
+      if(res && res.value){
+        try {
+          var saved = JSON.parse(res.value);
+          state.hearts = saved.hearts || {};
+          state.picks = saved.picks || {};
+          state.checks = saved.checks || {};
+        } catch(e){}
+      }
+      render();
+    }).catch(function(){ render(); });
+  }
+
+  setTab('d1');
+  render();
+  load();
+})();
+</script>
+</body>
+</html>
