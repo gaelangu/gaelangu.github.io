@@ -1,3 +1,9 @@
 .Rhistory
 .DS_Store
 .claude/
+
+# Taiwan page: plaintext trip data (contains passport PII) — never commit.
+# Only the AES-encrypted blob inside taiwan/index.html is public.
+taiwan/data.json
+# Secret half of the unlock key (the #k= URL fragment) — never commit.
+taiwan/linkkey.txt
