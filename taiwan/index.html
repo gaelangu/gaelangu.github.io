@@ -74,8 +74,11 @@
   a{color:var(--jade);text-underline-offset:2px}
   ::selection{background:rgba(247,169,59,.4);color:#120F0C}
   img{max-width:100%;display:block}
-  button{font-family:inherit}
+  button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   :focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:6px}
+  /* no lingering focus/tap box after a pointer tap — keyboard focus (:focus-visible) still shows */
+  :focus:not(:focus-visible){outline:none}
+  .tab,.filters button,.daysel button,.langsw button,.daycard,.mli,.day-hd .base{-webkit-tap-highlight-color:transparent}
 
   /* ============ PIN GATE ============ */
   #gate{
@@ -238,13 +241,18 @@
   /* Tabs */
   .tabbar{position:sticky;top:0;z-index:400;background:var(--tabbar-bg);
     backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-  .tabbar-inner{display:flex;gap:4px;padding:9px 12px;max-width:900px;margin:0 auto;overflow-x:auto;scrollbar-width:none}
+  .tabbar-inner{padding:9px 12px;max-width:900px;margin:0 auto;overflow-x:auto;scrollbar-width:none}
   .tabbar-inner::-webkit-scrollbar{display:none}
-  .tab{font-family:"Space Grotesk","Noto Sans TC",sans-serif;font-size:13px;font-weight:600;
+  .tab-track{position:relative;display:flex;gap:4px;width:max-content}
+  .tab-ind{position:absolute;top:0;left:0;z-index:0;background:var(--amber);border-radius:999px;
+    opacity:0;pointer-events:none;will-change:transform,width;
+    transition:transform .36s cubic-bezier(.34,1.2,.42,1),width .36s cubic-bezier(.34,1.2,.42,1),opacity .2s ease}
+  .tab{position:relative;z-index:1;font-family:"Space Grotesk","Noto Sans TC",sans-serif;font-size:13px;font-weight:600;
     border:1px solid transparent;background:transparent;color:var(--ink-soft);
-    padding:8px 13px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
-  .tab:hover{background:rgba(243,236,224,.07);color:var(--ink)}
-  .tab.active{background:var(--amber);color:#241a12}
+    padding:8px 13px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:color .25s ease;
+    -webkit-tap-highlight-color:transparent}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:#241a12}
 
   main{padding:26px 0 60px;position:relative}
   .panel{display:none}
@@ -879,14 +887,30 @@
   /* ---------- tabs ---------- */
   const TABS=[['trip','tab_trip'],['days','tab_days'],['coffee','tab_coffee'],['eat','tab_eat'],['explore','tab_explore'],['info','tab_info']];
   function buildTabs(){
-    document.getElementById('tabs').innerHTML=TABS.map(function(x){
-      return '<button class="tab" data-tab="'+x[0]+'"></button>';}).join('');
+    document.getElementById('tabs').innerHTML='<div class="tab-track"><span class="tab-ind" id="tabInd"></span>'+TABS.map(function(x){
+      return '<button class="tab" data-tab="'+x[0]+'"></button>';}).join('')+'</div>';
     document.getElementById('tabs').addEventListener('click',function(e){
       var b=e.target.closest('[data-tab]'); if(b)setTab(b.getAttribute('data-tab'));});
+    window.addEventListener('resize',moveTabInd);
+  }
+  function moveTabInd(){
+    var ind=document.getElementById('tabInd');
+    var act=document.querySelector('#tabs .tab.active');
+    if(!ind||!act)return;
+    var first=ind.style.opacity!=='1'; // first placement: snap without sliding in from the corner
+    if(first)ind.style.transition='none';
+    ind.style.width=act.offsetWidth+'px';
+    ind.style.height=act.offsetHeight+'px';
+    ind.style.transform='translate('+act.offsetLeft+'px,'+act.offsetTop+'px)';
+    ind.style.opacity='1';
+    if(first){void ind.offsetWidth;ind.style.transition='';}
+    // keep the active tab in view when the bar scrolls horizontally on mobile
+    if(act.scrollIntoView)act.scrollIntoView({inline:'nearest',block:'nearest'});
   }
   function renderTabs(){document.querySelectorAll('#tabs [data-tab]').forEach(function(b){
     var key=TABS.filter(function(x){return x[0]===b.getAttribute('data-tab');})[0][1];
-    b.textContent=t(key); b.classList.toggle('active',b.getAttribute('data-tab')===activeTab);});}
+    b.textContent=t(key); b.classList.toggle('active',b.getAttribute('data-tab')===activeTab);});
+    moveTabInd();}
   function setTab(id){
     if(id===activeTab)return;
     var prev=document.getElementById('p-'+activeTab);
