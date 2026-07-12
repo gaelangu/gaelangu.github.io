@@ -336,7 +336,10 @@
   .loc-actions .btn{flex:1;justify-content:center}
 
   /* Filter chips */
-  .filters{display:flex;gap:7px;overflow-x:auto;padding-bottom:10px;margin-bottom:14px;scrollbar-width:none}
+  .filters{display:flex;gap:7px;overflow-x:auto;padding-bottom:10px;margin-bottom:14px;scrollbar-width:none;align-items:center;-webkit-overflow-scrolling:touch}
+  .filters.sortrow{margin-top:-6px}
+  .filters .lbl{flex:none;font-family:"Space Grotesk","Noto Sans TC",sans-serif;font-size:10.5px;font-weight:700;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);padding:0 2px}
   .filters::-webkit-scrollbar{display:none}
   .filters button{flex:none;font-family:"Space Grotesk","Noto Sans TC",sans-serif;font-size:12.5px;font-weight:600;
     border:1px solid var(--line-2);background:var(--paper);color:var(--ink-soft);padding:7px 13px;border-radius:999px;cursor:pointer;white-space:nowrap}
@@ -588,6 +591,8 @@
     with_family:{en:"Family of 4",zh:"一家四口"},with_inlaws:{en:"Family of 6",zh:"六人同遊"},
     split_note:{en:"<b>Who's together:</b> Dad & Mom join from 10 Nov and hang out for the rest of the trip — same roof in Beitou (10–13 Nov), separate hotels after, same plans every day. They stay on in Taiwan after you fly home on the 16th.",zh:"<b>同行安排：</b>爸媽自 11/10 起加入並同遊到最後 — 北投期間同住（11/10–13），之後分開住宿但每天一起行動。你們 11/16 回國後，他們會在台灣多待幾天。"},
     days_kick:{en:"Day by day",zh:"逐日行程"},
+    sort_label:{en:"Sort",zh:"排序"},sort_default:{en:"Curated",zh:"精選"},
+    sort_rating:{en:"★ Rating",zh:"★ 評分"},sort_reviews:{en:"Most reviewed",zh:"評論最多"},
     coffee_kick:{en:"Flexible · pick as you go",zh:"彈性 · 隨走隨選"},coffee_h:{en:"Coffee",zh:"咖啡"},
     coffee_p:{en:"Taipei is a world coffee city. This is your running list — glance at it any morning and pick wherever's near. Nothing here is scheduled.",zh:"台北是世界級咖啡城市。這是你的隨身清單 — 任何早晨看一眼、就近挑一家。這裡都不排進固定行程。"},
     eat_kick:{en:"Flexible · pick as you go",zh:"彈性 · 隨走隨選"},eat_h:{en:"Eat",zh:"美食"},
@@ -884,30 +889,65 @@
   }
 
   /* ---------- POOLS (coffee / eat / explore) ---------- */
+  var poolState={coffee:{f:'all',s:'default'},eat:{f:'all',s:'default'},explore:{f:'all',s:'default'}};
+  var POOL_CATS={coffee:['coffee'],eat:['food','bar','nightmarket'],explore:['hotspring','activity','landmark','daytrip','shopping']};
+  function parseReviews(r){if(!r)return 0;var m=String(r).replace(/[,+~約]/g,'').match(/\d+/);return m?+m[0]:0;}
+  function sortPool(items,s){
+    var a=items.slice();
+    if(s==='rating')a.sort(function(x,y){return (y.rating||0)-(x.rating||0)||parseReviews(y.reviews)-parseReviews(x.reviews);});
+    else if(s==='reviews')a.sort(function(x,y){return parseReviews(y.reviews)-parseReviews(x.reviews);});
+    return a;
+  }
+  function poolItems(tab){
+    var cats=POOL_CATS[tab];
+    return DATA.locations.filter(function(l){return cats.indexOf(l.category)>=0;});
+  }
+  function renderPoolGrid(tab){
+    var st=poolState[tab];
+    var items=poolItems(tab).filter(function(l){return st.f==='all'||l.category===st.f;});
+    document.getElementById(tab+'Grid').innerHTML=sortPool(items,st.s).map(locCard).join('');
+  }
   function renderPools(){
-    var coffee=DATA.locations.filter(function(l){return l.category==='coffee';});
-    document.getElementById('p-coffee').innerHTML=
-      '<div class="sec-head"><p class="kicker">'+t('coffee_kick')+'</p><h2>'+t('coffee_h')+'</h2><p class="body-txt">'+t('coffee_p')+'</p></div>'+
-      '<div class="grid">'+coffee.map(locCard).join('')+'</div>';
-    var eat=DATA.locations.filter(function(l){return l.category==='food'||l.category==='nightmarket'||l.category==='bar';});
-    document.getElementById('p-eat').innerHTML=
-      '<div class="sec-head"><p class="kicker">'+t('eat_kick')+'</p><h2>'+t('eat_h')+'</h2><p class="body-txt">'+t('eat_p')+'</p></div>'+
-      '<div class="grid">'+eat.map(locCard).join('')+'</div>';
-    // explore with filters
-    var exCats=['hotspring','activity','landmark','daytrip','shopping'];
-    var ex=DATA.locations.filter(function(l){return exCats.indexOf(l.category)>=0;});
-    var present=exCats.filter(function(c){return ex.some(function(l){return l.category===c;});});
-    var chips='<button data-exf="all" class="on">'+t('all')+'</button>'+present.map(function(c){
-      return '<button data-exf="'+c+'">'+(CATS[c].e)+' '+(CATS[c][lang]||CATS[c].en)+'</button>';}).join('');
-    document.getElementById('p-explore').innerHTML=
-      '<div class="sec-head"><p class="kicker">'+t('explore_kick')+'</p><h2>'+t('explore_h')+'</h2><p class="body-txt">'+t('explore_p')+'</p></div>'+
-      '<div class="filters" id="exFilters">'+chips+'</div>'+
-      '<div class="grid" id="exGrid">'+ex.map(locCard).join('')+'</div>';
-    var ef=document.getElementById('exFilters');
-    ef.addEventListener('click',function(e){var b=e.target.closest('[data-exf]');if(!b)return;
-      ef.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');
-      var f=b.getAttribute('data-exf');
-      document.getElementById('exGrid').innerHTML=ex.filter(function(l){return f==='all'||l.category===f;}).map(locCard).join('');
+    var HEADS={
+      coffee:{kick:'coffee_kick',h:'coffee_h',p:'coffee_p'},
+      eat:{kick:'eat_kick',h:'eat_h',p:'eat_p'},
+      explore:{kick:'explore_kick',h:'explore_h',p:'explore_p'},
+    };
+    Object.keys(HEADS).forEach(function(tab){
+      var st=poolState[tab];
+      var items=poolItems(tab);
+      var present=POOL_CATS[tab].filter(function(c){return items.some(function(l){return l.category===c;});});
+      // category chips only when the pool spans multiple categories
+      var filterRow='';
+      if(present.length>1){
+        if(present.indexOf(st.f)<0&&st.f!=='all')st.f='all';
+        filterRow='<div class="filters" data-pool-f="'+tab+'">'+
+          '<button data-f="all" class="'+(st.f==='all'?'on':'')+'">'+t('all')+'</button>'+
+          present.map(function(c){return '<button data-f="'+c+'" class="'+(st.f===c?'on':'')+'">'+CATS[c].e+' '+(CATS[c][lang]||CATS[c].en)+'</button>';}).join('')+
+          '</div>';
+      } else { st.f='all'; }
+      var sortRow='<div class="filters sortrow" data-pool-s="'+tab+'">'+
+        '<span class="lbl">'+t('sort_label')+'</span>'+
+        [['default','sort_default'],['rating','sort_rating'],['reviews','sort_reviews']].map(function(o){
+          return '<button data-s="'+o[0]+'" class="'+(st.s===o[0]?'on':'')+'">'+t(o[1])+'</button>';}).join('')+
+        '</div>';
+      document.getElementById('p-'+tab).innerHTML=
+        '<div class="sec-head"><p class="kicker">'+t(HEADS[tab].kick)+'</p><h2>'+t(HEADS[tab].h)+'</h2><p class="body-txt">'+t(HEADS[tab].p)+'</p></div>'+
+        filterRow+sortRow+
+        '<div class="grid" id="'+tab+'Grid"></div>';
+      renderPoolGrid(tab);
+      var fEl=document.querySelector('[data-pool-f="'+tab+'"]');
+      if(fEl)fEl.addEventListener('click',function(e){
+        var b=e.target.closest('[data-f]');if(!b)return;
+        fEl.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');
+        poolState[tab].f=b.getAttribute('data-f');renderPoolGrid(tab);
+      });
+      var sEl=document.querySelector('[data-pool-s="'+tab+'"]');
+      sEl.addEventListener('click',function(e){
+        var b=e.target.closest('[data-s]');if(!b)return;
+        sEl.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');
+        poolState[tab].s=b.getAttribute('data-s');renderPoolGrid(tab);
+      });
     });
   }
 
