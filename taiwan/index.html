@@ -201,10 +201,39 @@
   .hero h1{position:relative;z-index:2;font-size:clamp(2.8rem,13vw,5rem);line-height:1;margin:0 0 8px;letter-spacing:-.01em}
   .hero .sub{position:relative;z-index:2;color:var(--ink);font-size:1.02rem;margin:0 0 4px}
   .hero .who{position:relative;z-index:2;color:var(--ink-soft);font-size:.9rem;margin:0}
-  .chips{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+  .hero-meta{position:relative;z-index:3;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 18px;margin-top:16px}
+  .chips{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:7px}
   .chip{font-family:"Space Grotesk","Noto Sans TC",sans-serif;font-size:12px;font-weight:600;color:var(--ink);
     background:var(--paper);border:1px solid var(--line-2);padding:6px 11px;border-radius:999px;white-space:nowrap;
     box-shadow:0 2px 10px -4px rgba(0,0,0,.4)}
+  /* ── Live countdown (dynamic: leading zero units drop off; whole thing collapses away at zero) ── */
+  .countdown{position:relative;z-index:3;display:flex;margin-left:auto;
+    max-width:600px;max-height:80px;opacity:1;overflow:hidden;
+    transition:opacity .4s ease,max-width .4s ease,max-height .4s ease,margin .4s ease}
+  .countdown.cd-gone{opacity:0;max-width:0;max-height:0;margin:0;pointer-events:none}
+  @media (max-width:560px){.countdown{flex:1 0 100%;margin-left:0;max-width:none}
+    .countdown.cd-gone{flex-basis:0}}
+  .cd-seg{min-width:52px;max-width:140px;padding:7px 9px 6px;margin-right:7px;border-radius:12px;text-align:center;
+    background:var(--paper);border:1px solid var(--line-2);box-shadow:0 2px 12px -6px rgba(0,0,0,.5);
+    overflow:hidden;transition:max-width .4s cubic-bezier(.4,0,.2,1),min-width .4s cubic-bezier(.4,0,.2,1),
+      opacity .3s ease,transform .3s ease,margin-right .4s ease,padding .4s ease}
+  .cd-seg:last-child{margin-right:0}
+  .cd-seg.cd-exit{max-width:0!important;min-width:0!important;opacity:0;transform:scale(.8);
+    margin-right:0!important;padding-left:0!important;padding-right:0!important;pointer-events:none}
+  @keyframes cdSegIn{from{opacity:0;transform:translateY(-10px) scale(.82)}to{opacity:1;transform:none}}
+  .cd-seg.cd-in{animation:cdSegIn .4s cubic-bezier(.34,1.56,.64,1) both}
+  .cd-num{font-family:"Space Grotesk",monospace;font-weight:700;font-size:1.4rem;line-height:1;color:var(--ink);
+    font-variant-numeric:tabular-nums;font-feature-settings:"tnum";display:inline-block}
+  @keyframes cdTick{0%{transform:translateY(0)}45%{transform:translateY(-3px) scale(1.06)}100%{transform:translateY(0)}}
+  .cd-num.cd-tick{animation:cdTick .32s ease}
+  .cd-lbl{font-family:"Space Grotesk","Noto Sans TC",sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--amber-deep);margin-top:4px}
+  .cd-sec .cd-num{color:var(--amber-deep)}
+  @media (max-width:560px){
+    .cd-seg{min-width:0;flex:1;padding:6px 4px 5px;margin-right:5px}
+    .cd-num{font-size:1.15rem}
+    .cd-lbl{font-size:7.5px;letter-spacing:.04em}
+  }
 
   /* Tabs */
   .tabbar{position:sticky;top:0;z-index:400;background:var(--tabbar-bg);
@@ -541,8 +570,10 @@
         </div>
       </div>
       <h1 id="heroTitle"></h1>
-      <p class="sub" id="heroSub"></p>
-      <div class="chips" id="heroChips"></div>
+      <div class="hero-meta">
+        <div class="chips" id="heroChips"></div>
+        <div class="countdown" id="countdown" aria-live="off"></div>
+      </div>
     </div>
   </header>
 
@@ -586,8 +617,15 @@
   }
 
   /* ---------- i18n ---------- */
-  let lang = localStorage.getItem('tw_lang')==='zh' ? 'zh' : 'en';
-  let theme = localStorage.getItem('tw_theme')==='light' ? 'light' : 'dark';
+  function readPref(k){ // plain string read; also tolerates a legacy JSON.stringify-wrapped value
+    var v=localStorage.getItem(k);
+    if(v==null)return null;
+    if(v.length>=2&&v.charAt(0)==='"'&&v.charAt(v.length-1)==='"')v=v.slice(1,-1);
+    return v;
+  }
+  function writePref(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+  let lang = readPref('tw_lang')==='zh' ? 'zh' : 'en';
+  let theme = readPref('tw_theme')==='light' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', theme);
   const UI={
     gate_busy:{en:"Unlocking…",zh:"解鎖中…"},
@@ -726,6 +764,7 @@
   function boot(){
     DATA.locations.forEach(function(l){LOC[l.id]=l;});
     document.getElementById('app').classList.add('on');
+    syncClock();
     buildTabs();
     renderAll();
     // deep-links between views
@@ -744,12 +783,97 @@
     document.querySelectorAll('[data-lang-btn]').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-lang-btn')===lang);});
     var m=DATA.meta;
     document.getElementById('heroTitle').textContent=Lf(m,'title');
-    document.getElementById('heroSub').textContent=Lf(m,'subtitle');
     document.getElementById('heroChips').innerHTML=
-      ['📅 '+Lf(m,'dates'),'♨️ '+(lang==='zh'?'北投溫泉':'Beitou hot springs'),'☕ '+(lang==='zh'?'世界級咖啡':'World-class coffee')]
+      ['📅 '+Lf(m,'dates')]
       .map(function(c){return '<span class="chip">'+esc(c)+'</span>';}).join('');
+    renderCountdown();
     renderTabs(); renderTrip(); renderDays(); renderPools(); renderInfo();
     document.getElementById('p-'+activeTab).classList.add('show'); // ensure a panel is visible on first boot
+  }
+
+  /* ---------- live countdown (to SQ 878 departure, 2026-11-08 11:40 +08:00) ---------- */
+  var TRIP_START=Date.UTC(2026,10,8,3,40,0); // 11:40 SGT == 03:40 UTC
+  var clockOffset=0, cdTimer=null;
+  function correctedNow(){return Date.now()+clockOffset;}
+  function syncClock(){ // align to server (NTP-synced) time so it doesn't drift with a wrong device clock
+    try{
+      var t0=Date.now();
+      fetch(location.href,{method:'HEAD',cache:'no-store'}).then(function(r){
+        var d=r.headers.get('Date'); if(!d)return;
+        var srv=new Date(d).getTime();
+        if(isFinite(srv)) clockOffset=srv-(Date.now()+t0)/2; // midpoint of request window
+      }).catch(function(){});
+    }catch(e){}
+  }
+  function pad2(n){return (n<10?'0':'')+n;}
+  function cdParts(){
+    var now=correctedNow();
+    if(TRIP_START<=now)return null;
+    var a=new Date(now), b=new Date(TRIP_START);
+    var months=(b.getFullYear()-a.getFullYear())*12+(b.getMonth()-a.getMonth());
+    var anchor=new Date(a); anchor.setMonth(anchor.getMonth()+months);
+    if(anchor.getTime()>b.getTime()){months--;anchor=new Date(a);anchor.setMonth(anchor.getMonth()+months);}
+    var rem=b.getTime()-anchor.getTime();
+    var days=Math.floor(rem/864e5); rem-=days*864e5;
+    var hrs=Math.floor(rem/36e5); rem-=hrs*36e5;
+    var mins=Math.floor(rem/6e4); rem-=mins*6e4;
+    var secs=Math.floor(rem/1e3);
+    return {months:months,days:days,hrs:hrs,mins:mins,secs:secs};
+  }
+  var CD_KEYS=['months','days','hrs','mins','secs'];
+  var CD_LABS={en:{months:'Months',days:'Days',hrs:'Hrs',mins:'Min',secs:'Sec'},zh:{months:'月',days:'天',hrs:'時',mins:'分',secs:'秒'}};
+  var cdVisible=null; // the set of unit keys currently shown, so ticks can detect when one drops off
+  function cdReducedMotion(){return window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;}
+  function cdVisibleKeys(p){ // drop leading units once they hit 0 (once gone they never return — time only counts down)
+    var i=0; while(i<CD_KEYS.length-1&&p[CD_KEYS[i]]===0)i++;
+    return CD_KEYS.slice(i);
+  }
+  function cdSegHtml(k,val,enter){
+    var lab=CD_LABS[lang==='zh'?'zh':'en'][k];
+    return '<div class="cd-seg'+(k==='secs'?' cd-sec':'')+(enter?' cd-in':'')+'" data-key="'+k+'">'+
+      '<div class="cd-num" data-cd="'+k+'">'+pad2(val)+'</div><div class="cd-lbl">'+lab+'</div></div>';
+  }
+  function cdPulse(node){ // subtle per-tick liveliness, even on unchanged digits' neighbours
+    node.classList.remove('cd-tick'); void node.offsetWidth; node.classList.add('cd-tick');
+  }
+  function renderCountdown(){
+    var el=document.getElementById('countdown'); if(!el)return;
+    if(cdTimer){clearInterval(cdTimer);cdTimer=null;}
+    var p=cdParts();
+    if(!p){el.innerHTML='';el.classList.add('cd-gone');cdVisible=null;return;} // trip already underway — no timer needed
+    el.classList.remove('cd-gone');
+    var vis=cdVisibleKeys(p);
+    el.innerHTML=vis.map(function(k){return cdSegHtml(k,p[k],true);}).join('');
+    cdVisible=vis.slice();
+    cdTimer=setInterval(tickCountdown,1000);
+  }
+  function tickCountdown(){
+    var el=document.getElementById('countdown'); if(!el)return;
+    var p=cdParts();
+    var reduced=cdReducedMotion();
+    if(!p){ // crossed zero mid-tick — collapse the whole widget away, then remove it for good
+      [].slice.call(el.querySelectorAll('.cd-seg')).forEach(function(s){s.classList.add('cd-exit');});
+      clearInterval(cdTimer); cdTimer=null; cdVisible=null;
+      setTimeout(function(){el.innerHTML='';el.classList.add('cd-gone');},reduced?0:420);
+      return;
+    }
+    var vis=cdVisibleKeys(p);
+    var setChanged=!cdVisible||vis.length!==cdVisible.length||vis[0]!==cdVisible[0];
+    if(setChanged){
+      var removed=cdVisible?cdVisible.filter(function(k){return vis.indexOf(k)<0;}):[];
+      removed.forEach(function(k){
+        var node=el.querySelector('.cd-seg[data-key="'+k+'"]');
+        if(node)node.classList.add('cd-exit');
+      });
+      if(removed.length)setTimeout(function(){
+        removed.forEach(function(k){var n=el.querySelector('.cd-seg[data-key="'+k+'"]');if(n)n.remove();});
+      },reduced?0:420);
+      cdVisible=vis.slice();
+    }
+    vis.forEach(function(k){
+      var num=el.querySelector('.cd-num[data-cd="'+k+'"]');
+      if(num){var v=pad2(p[k]); if(num.textContent!==v){num.textContent=v;cdPulse(num);}}
+    });
   }
 
   /* ---------- tabs ---------- */
@@ -1136,7 +1260,7 @@
     b.addEventListener('click',function(){
       var newLang=b.getAttribute('data-lang-btn');
       if(newLang===lang||langAnimating)return;
-      lang=newLang; save('tw_lang',lang);
+      lang=newLang; writePref('tw_lang',lang);
       if(!DATA){return;} // gate still showing — nothing to re-render yet
       var appEl=document.getElementById('app');
       var wipe=document.getElementById('langwipe');
@@ -1166,7 +1290,7 @@
   if(themeBtn){
     themeBtn.addEventListener('click',function(){
       theme = theme==='dark' ? 'light' : 'dark';
-      save('tw_theme',theme);
+      writePref('tw_theme',theme);
       var html=document.documentElement;
       html.classList.add('theming');       // enables the one-shot color transition
       html.setAttribute('data-theme',theme);
