@@ -306,6 +306,17 @@
 
   /* Location cards */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  @keyframes cardIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+  .grid.pool-enter .loc{animation:cardIn .38s cubic-bezier(.22,.9,.32,1) both}
+  .grid.pool-enter .loc:nth-child(1){animation-delay:.01s}.grid.pool-enter .loc:nth-child(2){animation-delay:.04s}
+  .grid.pool-enter .loc:nth-child(3){animation-delay:.07s}.grid.pool-enter .loc:nth-child(4){animation-delay:.10s}
+  .grid.pool-enter .loc:nth-child(5){animation-delay:.13s}.grid.pool-enter .loc:nth-child(6){animation-delay:.16s}
+  .grid.pool-enter .loc:nth-child(7){animation-delay:.19s}.grid.pool-enter .loc:nth-child(8){animation-delay:.22s}
+  .grid.pool-enter .loc:nth-child(n+9){animation-delay:.24s}
+  .filters button{transition:background .15s,color .15s,border-color .15s,transform .12s}
+  .filters button:active{transform:scale(.93)}
+  @keyframes chipPop{50%{transform:scale(1.12)}}
+  .filters button.on{animation:chipPop .28s cubic-bezier(.34,1.56,.64,1)}
   .loc{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
   .loc-img{position:relative;aspect-ratio:16/9;background:var(--paper-2);overflow:hidden}
   .loc-img img{width:100%;height:100%;object-fit:cover}
@@ -940,7 +951,7 @@
       document.getElementById('p-'+tab).innerHTML=
         '<div class="sec-head"><p class="kicker">'+t(HEADS[tab].kick)+'</p><h2>'+t(HEADS[tab].h)+'</h2><p class="body-txt">'+t(HEADS[tab].p)+'</p></div>'+
         filterRow+sortRow+
-        '<div class="grid" id="'+tab+'Grid"></div>';
+        '<div class="grid pool-enter" id="'+tab+'Grid"></div>';
       renderPoolGrid(tab);
       var fEl=document.querySelector('[data-pool-f="'+tab+'"]');
       if(fEl)fEl.addEventListener('click',function(e){
